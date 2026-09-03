@@ -224,6 +224,18 @@ textarea.gir{resize:vertical;line-height:1.45;font-size:15px}
 .gelir-renk{color:var(--kadife)}
 .gider-renk{color:var(--kirmizi)}
 
+/* ---- ortak kullanım / giriş ---- */
+.giris-kabuk{max-width:430px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 34px) 18px 60px;min-height:100vh;display:flex;align-items:center}
+.giris-kart{width:100%;background:var(--kart);border:1px solid var(--cizgi);border-radius:18px;padding:24px;box-shadow:0 12px 36px rgba(28,37,35,.08)}
+.giris-logo{font-size:30px;margin:0 0 4px}.giris-alt{margin:0 0 22px;color:var(--soluk);font-size:13px}
+.giris-kart .alan{margin-bottom:12px}.giris-kart .dg{margin-top:4px}
+.giris-hata{display:none;margin:12px 0 0;padding:10px 12px;border-radius:8px;background:#F6E2E0;color:#7A2621;font-size:12.5px}
+.giris-bilgi{padding:11px 12px;border-radius:9px;background:#F4EAD8;color:#6B4A16;font-size:12.5px;margin-bottom:16px}
+.senkron{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--soluk)}
+.senkron-nokta{width:7px;height:7px;border-radius:50%;background:#B6BCB8}.senkron-nokta.ok{background:#4A7B61}.senkron-nokta.hata{background:var(--kirmizi)}
+.oturum-satir{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px 8px;max-width:520px;margin:0 auto;color:var(--soluk);font-size:11.5px}
+.oturum-cik{border:none;background:none;padding:0;color:var(--kadife);font-weight:700;font-size:11.5px}
+
 /* ---- yazdırma ---- */
 #yazdirma{display:none}
 @media print{
@@ -247,18 +259,24 @@ textarea.gir{resize:vertical;line-height:1.45;font-size:15px}
 </style>
 </head>
 <body>
+<div id="girisEkrani" style="display:none"></div>
+<div id="ortakUygulama" style="display:none">
 <div class="kabuk">
   <header class="tepe">
     <h1 class="marka serif">Much&More <span style="font-family:Karla,system-ui;font-size:11px;font-weight:600;color:var(--soluk);letter-spacing:.04em">ORGANİZASYON</span></h1>
     <span class="tepe-not" id="tepeNot"></span>
   </header>
+  <div class="oturum-satir"><span id="oturumKim"></span><button class="oturum-cik" id="oturumCik" type="button">Çıkış</button></div>
   <div id="serit"></div>
   <main id="uygulama"><div class="ekran"><p class="bos">Yükleniyor…</p></div></main>
 </div>
 
 <nav class="sekmeler" id="sekmeler"></nav>
+</div>
 <div id="yazdirma"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <script>
 "use strict";
 
@@ -321,7 +339,7 @@ function tarihYaz(iso){ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||""))) return 
 function tarihKisa(iso){ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||""))) return "—"; const [,m,g]=iso.split("-"); return Number(g)+" "+AY_KISA[Number(m)-1]; }
 function renkHex(ad){ const r=RENKLER.find(x=>x.ad===ad); return r?r.hex:"#D8DAD4"; }
 function el(id){ return document.getElementById(id); }
-function klon(v){ return JSON.parse(JSON.stringify(v)); }
+function klon(v){ if(v===undefined) return undefined; return JSON.parse(JSON.stringify(v)); }
 
 function serit(mesaj, tip){
   const k = el("serit");
@@ -331,30 +349,131 @@ function serit(mesaj, tip){
   if(tip!=="hata") setTimeout(()=>{ const x=el("serit"); if(x) x.innerHTML=""; }, 4000);
 }
 
-/* ================= depolama ================= */
-const Depo = {
-  mod:"bellek", bellek:null,
-  async yukle(){
-    if(typeof window!=="undefined" && window.storage && window.storage.get){
-      this.mod="ortak";
-      try{ const s=await window.storage.get(ANAHTAR,true); if(s&&s.value) return JSON.parse(s.value); }catch(e){}
-      return null;
+/* ================= ortak depolama / Supabase ================= */
+const CFG = window.MUCH_MORE_CONFIG || {};
+let sb = null;
+let aktifKullanici = null;
+let sonSenkron = null;
+let kanal = null;
+let uzakUygulanirken = false;
+
+function bulutHazir(){
+  return !!(CFG.supabaseUrl && CFG.supabasePublishableKey && !String(CFG.supabaseUrl).includes("BURAYA_") && !String(CFG.supabasePublishableKey).includes("BURAYA_"));
+}
+function workspaceId(){ return CFG.workspaceId || "much-more-main"; }
+function jsonEsit(a,b){ try{return JSON.stringify(a)===JSON.stringify(b);}catch(e){return false;} }
+function nesneMi(v){ return v && typeof v==="object" && !Array.isArray(v); }
+function idDizisiMi(a){ return Array.isArray(a) && a.every(x=>nesneMi(x) && x.id!=null); }
+
+function ucYolluBirlestir(base, local, remote){
+  if(jsonEsit(local,base)) return klon(remote);
+  if(jsonEsit(remote,base)) return klon(local);
+  if(nesneMi(local) && nesneMi(remote)){
+    const b=nesneMi(base)?base:{}, out={};
+    const keys=new Set([...Object.keys(b),...Object.keys(local),...Object.keys(remote)]);
+    for(const k of keys){
+      const bHas=Object.prototype.hasOwnProperty.call(b,k), lHas=Object.prototype.hasOwnProperty.call(local,k), rHas=Object.prototype.hasOwnProperty.call(remote,k);
+      if(bHas && !lHas) continue;
+      if(!bHas && lHas){ out[k]=klon(local[k]); continue; }
+      if(!lHas && rHas){ out[k]=klon(remote[k]); continue; }
+      if(lHas && !rHas){ out[k]=klon(local[k]); continue; }
+      out[k]=ucYolluBirlestir(b[k],local[k],remote[k]);
     }
-    try{ const s=localStorage.getItem(ANAHTAR); this.mod="cihaz"; return s?JSON.parse(s):null; }
-    catch(e){ this.mod="bellek"; return this.bellek; }
+    return out;
+  }
+  if(Array.isArray(local) && Array.isArray(remote)){
+    const b=Array.isArray(base)?base:[];
+    if(idDizisiMi(local) && idDizisiMi(remote) && (b.length===0 || idDizisiMi(b))){
+      const bm=new Map(b.map(x=>[String(x.id),x])), lm=new Map(local.map(x=>[String(x.id),x])), rm=new Map(remote.map(x=>[String(x.id),x]));
+      const order=[]; for(const x of remote) order.push(String(x.id)); for(const x of local) if(!order.includes(String(x.id))) order.push(String(x.id));
+      const out=[];
+      for(const id of order){
+        const bv=bm.get(id), lv=lm.get(id), rv=rm.get(id);
+        if(bv && !lv) continue;
+        if(!bv && lv){ out.push(klon(lv)); continue; }
+        if(lv && !rv){ out.push(klon(lv)); continue; }
+        if(!lv && rv){ out.push(klon(rv)); continue; }
+        if(lv && rv) out.push(ucYolluBirlestir(bv,lv,rv));
+      }
+      return out;
+    }
+    return klon(local);
+  }
+  return klon(local);
+}
+
+function yerelOku(){ try{ const s=localStorage.getItem(ANAHTAR); return s?JSON.parse(s):null; }catch(e){ return null; } }
+function yerelYaz(v){ try{ localStorage.setItem(ANAHTAR,JSON.stringify(v)); }catch(e){} }
+function senkronDurum(metin,tip){
+  const x=el("tepeNot"); if(!x) return;
+  const sinif=tip==="ok"?"ok":tip==="hata"?"hata":"";
+  x.innerHTML='<span class="senkron"><span class="senkron-nokta '+sinif+'"></span>'+esc(metin)+'</span>';
+}
+
+const Depo = {
+  mod:"bulut",
+  async yukle(){
+    if(!sb || !aktifKullanici) throw new Error("Oturum yok");
+    const {data,error}=await sb.from("app_state").select("data,updated_at").eq("id",workspaceId()).maybeSingle();
+    if(error) throw error;
+    if(data && data.data){ sonSenkron=klon(data.data); yerelYaz(data.data); return data.data; }
+    const yerel=yerelOku(); sonSenkron=klon(yerel||varsayilan()); return yerel;
   },
   async kaydet(veri){
-    const metin=JSON.stringify(veri);
-    if(this.mod==="ortak"){
-      try{ await window.storage.set(ANAHTAR,metin,true); return true; }catch(e){ return false; }
-    }
-    if(this.mod==="cihaz"){
-      try{ localStorage.setItem(ANAHTAR,metin); return true; }catch(e){ this.mod="bellek"; }
-    }
-    this.bellek=veri; return true;
+    if(!sb || !aktifKullanici) return false;
+    try{
+      senkronDurum("Kaydediliyor…","");
+      const {data:uzak,error:okuHata}=await sb.from("app_state").select("data").eq("id",workspaceId()).maybeSingle();
+      if(okuHata) throw okuHata;
+      const remote=uzak&&uzak.data?uzak.data:(sonSenkron||varsayilan());
+      const merged=sonSenkron?ucYolluBirlestir(sonSenkron,veri,remote):veri;
+      const payload={id:workspaceId(),data:merged,updated_at:new Date().toISOString(),updated_by:aktifKullanici.email||aktifKullanici.id};
+      const {error}=await sb.from("app_state").upsert(payload,{onConflict:"id"});
+      if(error) throw error;
+      D=veriDuzenle(merged); sonSenkron=klon(D); yerelYaz(D); senkronDurum("Bulutta güncel","ok"); return true;
+    }catch(e){ console.error(e); senkronDurum("Senkron hatası","hata"); return false; }
   }
 };
-async function kaydet(){ const ok=await Depo.kaydet(D); if(!ok) serit("Kayıt yazılamadı. Bağlantınızı kontrol edin.","hata"); }
+async function kaydet(){
+  if(uzakUygulanirken) return true;
+  const ok=await Depo.kaydet(D);
+  if(!ok) serit("Kayıt buluta yazılamadı. İnternet bağlantısını ve Supabase ayarlarını kontrol edin.","hata");
+  return ok;
+}
+
+function girisHTML(hata){
+  if(!bulutHazir()) return '<div class="giris-kabuk"><div class="giris-kart"><h1 class="serif giris-logo">Much&amp;More</h1><p class="giris-alt">Ortak Organizasyon Yönetimi</p><div class="giris-bilgi"><b>Bulut kurulumu tamamlanmamış.</b><br>ZIP içindeki <b>KURULUM-ORTAK.md</b> adımlarını yapıp <b>config.js</b> içine Project URL ve Publishable key değerlerini yapıştırın.</div></div></div>';
+  return '<div class="giris-kabuk"><form class="giris-kart" id="girisForm"><h1 class="serif giris-logo">Much&amp;More</h1><p class="giris-alt">Ortak Organizasyon Yönetimi</p><div class="alan"><label class="et">E-posta</label><input class="gir" id="girisEmail" type="email" autocomplete="username" required placeholder="ornek@eposta.com"></div><div class="alan"><label class="et">Şifre</label><input class="gir" id="girisSifre" type="password" autocomplete="current-password" required placeholder="••••••••"></div><button class="dg ana genis" type="submit">Giriş yap</button><div class="giris-hata" id="girisHata"'+(hata?' style="display:block"':'')+'>'+esc(hata||"")+'</div></form></div>';
+}
+function girisGoster(hata){ el("ortakUygulama").style.display="none"; el("girisEkrani").style.display="block"; el("girisEkrani").innerHTML=girisHTML(hata); }
+function uygulamaGoster(){ el("girisEkrani").style.display="none"; el("ortakUygulama").style.display="block"; }
+
+async function oturumBaslat(){
+  if(!bulutHazir()){ girisGoster(); return false; }
+  if(!window.supabase || !window.supabase.createClient){ girisGoster("Supabase kütüphanesi yüklenemedi. İnternet bağlantısını kontrol edin."); return false; }
+  sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabasePublishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const {data,error}=await sb.auth.getSession();
+  if(error){ girisGoster(error.message); return false; }
+  aktifKullanici=data.session&&data.session.user?data.session.user:null;
+  if(!aktifKullanici){ girisGoster(); return false; }
+  return true;
+}
+
+async function bulutDinle(){
+  if(kanal) try{await sb.removeChannel(kanal);}catch(e){}
+  kanal=sb.channel("much-more-sync-"+workspaceId()).on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state",filter:"id=eq."+workspaceId()},payload=>{
+    if(!payload.new || !payload.new.data) return;
+    const gelen=veriDuzenle(payload.new.data);
+    if(jsonEsit(gelen,sonSenkron)) return;
+    sonSenkron=klon(gelen); yerelYaz(gelen); D=gelen;
+    if(ekran!=="form"){
+      uzakUygulanirken=true; try{ciz(); senkronDurum("Diğer cihazdan güncellendi","ok");}finally{uzakUygulanirken=false;}
+    } else {
+      senkronDurum("Bulutta yeni değişiklik var","ok");
+      serit("Diğer cihazdan yeni bir değişiklik geldi. Bu formu kaydettiğinizde değişiklikler birleştirilecek.");
+    }
+  }).subscribe();
+}
 
 /* ================= veri uyumluluğu ================= */
 function fiyatNormalize(f){
@@ -700,12 +819,24 @@ function fiyatEkrani(){
 function ciz(){
   let icerik="";
   if(ekran==="takvim") icerik=takvimEkrani(); else if(ekran==="detay") icerik=detayEkrani(); else if(ekran==="form") icerik=formEkrani(); else if(ekran==="gider") icerik=giderEkrani(); else if(ekran==="rapor") icerik=raporEkrani(); else if(ekran==="fiyat") icerik=fiyatEkrani();
-  el("uygulama").innerHTML=icerik; el("tepeNot").textContent=D.organizasyonlar.length+" kayıt"; sekmeleriCiz(); if(ekran==="form") formOzetGuncelle(); window.scrollTo(0,0);
+  el("uygulama").innerHTML=icerik; senkronDurum(D.organizasyonlar.length+" kayıt · senkron","ok"); sekmeleriCiz(); if(ekran==="form") formOzetGuncelle(); window.scrollTo(0,0);
 }
 
 /* ================= olaylar ================= */
+document.addEventListener("submit",async(e)=>{
+  if(e.target && e.target.id==="girisForm"){
+    e.preventDefault();
+    const email=el("girisEmail").value.trim(), password=el("girisSifre").value;
+    const b=e.target.querySelector("button"); b.disabled=true; b.textContent="Giriş yapılıyor…";
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error){ b.disabled=false; b.textContent="Giriş yap"; const h=el("girisHata"); h.textContent=error.message; h.style.display="block"; return; }
+    aktifKullanici=data.user; await uygulamayiYukle();
+  }
+});
+
 document.addEventListener("click",async(e)=>{
   const h=(s)=>e.target.closest(s); let n;
+  if(h("#oturumCik")){ if(sb) await sb.auth.signOut(); aktifKullanici=null; if(kanal) try{await sb.removeChannel(kanal);}catch(_e){} D=null; girisGoster(); return; }
   if((n=h("[data-sekme]"))){ekran=n.dataset.sekme;acikGun=null;ciz();return;}
   if((n=h("[data-ay]"))){acikAy+=Number(n.dataset.ay);acikGun=null;if(acikAy<0){acikAy=11;acikYil--;}if(acikAy>11){acikAy=0;acikYil++;}ciz();return;}
   if((n=h("[data-gun]"))){acikGun=acikGun===n.dataset.gun?null:n.dataset.gun;ciz();return;}
@@ -782,9 +913,21 @@ function excelIndir(){
 function yedekIndir(){ dosyaIndir(JSON.stringify(D,null,2),"much-more-yedek-"+bugunISO()+".json","application/json"); }
 
 /* ================= başlat ================= */
+async function uygulamayiYukle(){
+  uygulamaGoster();
+  if(el("oturumKim")) el("oturumKim").textContent=aktifKullanici&&aktifKullanici.email?aktifKullanici.email:"Yetkili kullanıcı";
+  let veri=null;
+  try{ veri=await Depo.yukle(); }
+  catch(e){ console.error(e); girisGoster("Veritabanına bağlanılamadı: "+(e.message||e)); return; }
+  D=veriDuzenle(veri);
+  const ok=await kaydet();
+  if(!ok){ girisGoster("Veritabanı hazır değil. Supabase SQL Editor'da ZIP içindeki supabase-kurulum.sql dosyasını çalıştırın."); return; }
+  ciz(); await bulutDinle();
+}
+
 (async function(){
-  let veri=null; try{veri=await Depo.yukle();}catch(e){}
-  D=veriDuzenle(veri); await kaydet(); ciz();
+  const oturum=await oturumBaslat();
+  if(oturum) await uygulamayiYukle();
   if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
 

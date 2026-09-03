@@ -1,5 +1,27 @@
 # Much&More Organizasyon Yönetimi — Kurulum
 
+## Önerilen kurulum: ortak kullanım
+
+Sen ve abin aynı verileri göreceksen **KURULUM-ORTAK.md** dosyasındaki adımları uygula. Bu sürüm Supabase ile e-posta/şifre girişi ve anlık ortak senkronizasyon içerir.
+
+> Eski yerel sürümü aynı GitHub Pages adresinde kullanıyorsan, eski verilerin bulunduğu telefondan ilk bulut girişini yap. Böylece mevcut kayıtlar ortak veritabanına taşınır.
+
+## Dosyalar
+
+- `index.html` — uygulama
+- `config.js` — Supabase Project URL + Publishable key
+- `supabase-kurulum.sql` — veritabanı/RLS/Realtime kurulumu
+- `manifest.json`, `sw.js`, ikonlar — PWA dosyaları
+- `KURULUM-ORTAK.md` — adım adım ortak kullanım kurulumu
+
+## Tek cihaz / eski açıklama
+
+Aşağıdaki eski notlar yalnızca önceki yerel sürüme aittir. Ortak kullanımda bunların yerine `KURULUM-ORTAK.md` esas alınmalıdır.
+
+---
+
+# Much&More Organizasyon Yönetimi — Kurulum
+
 ## Dosyalar
 
 Aşağıdaki dosyaların tamamı aynı klasörde durmalı:

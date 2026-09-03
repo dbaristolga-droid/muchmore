@@ -1,9 +1,10 @@
 /* Much&More Organizasyon Yönetimi — çevrimdışı önbellek */
-const SURUM = "much-more-v3";
+const SURUM = "much-more-v4-cloud-connected-1";
 const DOSYALAR = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./config.js",
   "./ikon.png",
   "./ikon-192.png",
   "./ikon-512.png"
@@ -24,7 +25,8 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
   e.respondWith(
     fetch(e.request)
       .then((yanit) => {

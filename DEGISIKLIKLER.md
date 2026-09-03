@@ -19,3 +19,13 @@
 - Özet, Tahsilatlar, Giderler ve Organizasyonlar sayfaları içeren Excel uyumlu .xls çıktı
 - Much&More marka başlığı ve PWA manifest adı güncellendi
 - Service Worker önbellek sürümü yükseltildi
+
+
+## v4 — Ortak kullanım
+- Supabase ortak veritabanı eklendi.
+- E-posta + şifre giriş ekranı eklendi.
+- RLS ile giriş yapmamış kullanıcıların veri erişimi kapatıldı.
+- İki cihaz arasında Realtime otomatik yenileme eklendi.
+- Aynı anda farklı kayıtlarda yapılan değişiklikler için üç yollu birleştirme eklendi.
+- Eski localStorage verisinin ilk bulut kurulumunda otomatik taşınması eklendi.
+- Üst bölümde senkron durum göstergesi ve çıkış eklendi.
