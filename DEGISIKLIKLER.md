@@ -29,3 +29,11 @@
 - Aynı anda farklı kayıtlarda yapılan değişiklikler için üç yollu birleştirme eklendi.
 - Eski localStorage verisinin ilk bulut kurulumunda otomatik taşınması eklendi.
 - Üst bölümde senkron durum göstergesi ve çıkış eklendi.
+
+## v6 — İptal / İade / Tarih Değişikliği
+- İptal durumu, iptal tarihi ve notu eklendi.
+- Para iadesi var/yok, iade tutarı ve iade tarihi eklendi.
+- İade tutarı ilgili ayın giderine otomatik yansır.
+- İptal edilen organizasyonda kalan alacak sıfırlanır ve aktif satış toplamından çıkarılır.
+- Tarih değişiklikleri eski/yeni tarih ve notla kalıcı tutulur.
+- Audit log, PDF ve Excel raporları yeni alanlarla güncellendi.
