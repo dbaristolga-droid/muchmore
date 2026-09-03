@@ -1,5 +1,5 @@
-/* Organizasyon Defteri — çevrimdışı önbellek */
-const SURUM = "defter-v2";
+/* Much&More Organizasyon Yönetimi — çevrimdışı önbellek */
+const SURUM = "much-more-v3";
 const DOSYALAR = [
   "./",
   "./index.html",

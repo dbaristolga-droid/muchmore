@@ -1,66 +1,79 @@
-# Organizasyon Defteri — Kurulum
+# Much&More Organizasyon Yönetimi — Kurulum
 
 ## Dosyalar
 
-| Dosya | Ne işe yarar |
-|---|---|
-| `index.html` | Uygulamanın tamamı |
-| `manifest.json` | Ana ekrana eklendiğinde ikon ve isim |
-| `sw.js` | İnternet yokken de açılmasını sağlar |
-| `ikon.png`, `ikon-192.png`, `ikon-512.png` | Ana ekran ikonu |
+Aşağıdaki dosyaların tamamı aynı klasörde durmalı:
 
-Altısı da **aynı klasörde** durmalı.
+- `index.html` — uygulamanın tamamı
+- `manifest.json` — PWA adı ve ana ekran ayarları
+- `sw.js` — çevrimdışı önbellek
+- `ikon.png`, `ikon-192.png`, `ikon-512.png` — uygulama ikonları
 
-## 1. Yayına alma
+## GitHub Pages ile yayınlama
 
-PWA'nın çalışması için dosyaların bir adreste (https ile) durması gerekir. Ücretsiz üç yol:
+1. `github.com` üzerinden ücretsiz hesap açın.
+2. Sağ üstte **+ → New repository** seçin.
+3. Repository adı olarak örneğin `much-more-defter` yazın.
+4. **Public** seçip **Create repository** deyin.
+5. Açılan depoda **Add file → Upload files** seçeneğine girin.
+6. `index.html`, `manifest.json`, `sw.js`, `ikon.png`, `ikon-192.png`, `ikon-512.png` dosyalarının tamamını yükleyip **Commit changes** deyin.
+7. **Settings → Pages** bölümüne girin.
+8. **Source: Deploy from a branch** seçin.
+9. **Branch: main**, klasör **/(root)** seçip **Save** deyin.
+10. Birkaç dakika sonra adresiniz şu formatta oluşur: `https://kullaniciadi.github.io/much-more-defter/`
 
-**Netlify Drop** (en kolay, 2 dakika)
-1. `app.netlify.com/drop` adresine gir
-2. Altı dosyanın olduğu klasörü sayfaya sürükle
-3. Sana `rastgele-isim.netlify.app` gibi bir adres verir
-4. Site ayarlarından adı değiştirebilirsin
+### Güncelleme yaparken
 
-**GitHub Pages** — Ücretsiz, biraz daha teknik.
+Yeni ZIP'teki dosyaları aynı repository'ye aynı isimlerle tekrar yükleyin ve **Commit changes** yapın. `sw.js` sürümü güncellendiği için PWA yeni sürümü çevrimiçi olduğunda alacaktır. iPhone'da eski ekran kısa süre görünürse uygulamayı tamamen kapatıp yeniden açın.
 
-**Kendi alan adın** — Zaten bir siteniz varsa dosyaları bir alt klasöre atmanız yeterli.
+## iPhone'a kurma
 
-## 2. iPhone'a kurma (her personel için bir kez)
+1. Yayın adresini **Safari** ile açın.
+2. Paylaş düğmesine basın.
+3. **Ana Ekrana Ekle** seçin.
+4. Much&More adıyla kaydedin.
 
-1. **Safari** ile adresi aç (Chrome ile olmaz)
-2. Alttaki paylaş tuşuna bas
-3. **"Ana Ekrana Ekle"**
-4. İsmi onayla
+## Güncel fiyat sistemi
 
-Artık ana ekranda ikonuyla duruyor, dokununca tam ekran açılıyor.
+Uygulama başlangıçta şu listeyle gelir:
 
-## 3. İlk ayarlar
+| Kişi | Ordövr | Et Menü | Tavuk Menü |
+|---|---:|---:|---:|
+| 50–80 | 2.340 TL | 2.850 TL | 2.750 TL |
+| 100+ | 1.950 TL | 2.350 TL | 2.250 TL |
 
-**Fiyatlar sekmesi** → kişi başı ordövr / et / tavuk fiyatlarını gir.
-Zam yaptığında eskisini silme, yeni tarihle yeni liste ekle. Eski işler eski fiyattan kalır.
+81–99 kişi aralığında sistem 50–80 listesini başlangıç fiyatı olarak gösterir ve pazarlıklı kişi başı bedelin kontrol edilmesini ister. Organizasyon içindeki **Anlaşılan kişi başı bedel** alanı değiştirilebilir.
 
-**Giderler sekmesi** → o ayın kira, aidat, stopaj tutarlarını gir.
-Sonraki ay "Önceki aydan kopyala" ile tek tuşta gelir.
+Yeni bir fiyat listesi eklendiğinde mevcut organizasyonların fiyatı değişmez. Her organizasyon kullandığı fiyat listesini kendi kaydında sabitler.
 
-**Ayarlar** → garson oranı (varsayılan 10 kişiye 1) ve fatura oranı (%20).
+## Personel giderleri
 
-## 4. Önemli: veri nerede duruyor
+- Garson oranı varsayılan: **10 kişiye 1 garson**
+- Garson başı ücret varsayılan: **2.000 TL**
+- Garson yol / ek ücret için açıklama ve tutar alanı vardır.
+- **DJ gideri** ayrı tutulur.
+- **Mutfak personeli gideri** ayrı tutulur.
+- Bu giderler organizasyon tarihinin ayındaki rapora otomatik girer.
 
-Şu haliyle veriler **her telefonun kendi içinde** duruyor. Yani senin girdiğin bir organizasyon,
-personelinin telefonunda görünmez.
+## Dekorasyon
 
-Ekibin aynı kayıtları görmesi için ortak bir veritabanı gerekiyor (Supabase veya Firebase —
-bu ölçekte ücretsiz kademe yeter). Kurulduğunda değişen tek şey, uygulamanın verileri
-kendi telefonu yerine oradan okuması olur.
+- Tavan süslemesi: renk + açıklama + ücret
+- Perde süslemesi: renk + açıklama + ücret
+- Zemin kaplama: tek model, yalnızca ücret
+- Masa üzeri dekorasyon: yalnızca serbest not, ücrete eklenmez
+- Ekstra dekorasyon: açıklama + ücret; birden fazla kalem eklenebilir ve müşteri toplamına dahil edilir
 
-**O zamana kadar:** kayıtları tek bir telefondan girin, ayda bir
-Fiyatlar → "Yedek indir" ile yedek alın.
+## Rapor mantığı
 
-## 5. Günlük kullanım
+- Kapora, ara ödeme ve son ödeme **hangi tarihte tahsil edildiyse o ayın gelirine** yazılır.
+- Organizasyonun toplam sözleşme değeri ayrıca ayın organizasyonları bölümünde görünür.
+- Personel giderleri organizasyon tarihinin ayına girer.
+- Diğer giderler kendi girilen tarihine göre raporlanır.
+- Rapor ekranında geçmiş/gelecek ay geçişi yapılabilir.
+- Çıktılar: profesyonel yazdırılabilir PDF ve çok sayfalı Excel uyumlu `.xls` dosyası.
 
-- **Takvim** — güne dokun, "+ Organizasyon" ile ekle. Takvimde her günün sağ üstündeki
-  renkli kutucuk o işin perde rengi.
-- **Organizasyon içi** — Genel, Menü, Dekorasyon, Tasarım, Ödemeler, Giderler bölümleri.
-  Alttaki koyu şeritte toplam anlık güncellenir.
-- **Ödemeler** — kaporayı ve son ödemeyi kendi tarihiyle girin. Gelir o ayın hesabına yazılır.
-- **Rapor** — ay seç, kalem kalem gelir/gider gör, PDF veya Excel al.
+## Veri saklama
+
+Bu sürümde veriler hâlâ cihazın tarayıcı/PWA depolamasında tutulur. Aynı kayıtların birden fazla telefon tarafından ortak görülmesi için sonraki aşamada Supabase/Firebase gibi ortak veritabanı bağlantısı gerekir.
+
+Ortak veritabanı kurulana kadar düzenli olarak **Fiyatlar → Yedek indir (JSON)** kullanın.

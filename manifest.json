@@ -1,7 +1,7 @@
 {
-  "name": "Organizasyon Defteri",
-  "short_name": "Defter",
-  "description": "Organizasyon takibi, dekorasyon, ücretlendirme ve aylık gelir-gider",
+  "name": "Much&More Organizasyon Yönetimi",
+  "short_name": "Much&More",
+  "description": "Much&More organizasyon takibi, fiyatlandırma, dekorasyon, ödeme, gider ve aylık raporlama",
   "lang": "tr",
   "dir": "ltr",
   "start_url": "./index.html",
@@ -11,8 +11,23 @@
   "background_color": "#EEEFEC",
   "theme_color": "#EEEFEC",
   "icons": [
-    { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "ikon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
