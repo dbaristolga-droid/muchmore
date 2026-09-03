@@ -216,6 +216,14 @@ textarea.gir{resize:vertical;line-height:1.45;font-size:15px}
 .uc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.uc>div{min-width:0}
 @media(max-width:390px){.uc{grid-template-columns:1fr}.fiyat-grid{grid-template-columns:1fr}.ciftli{flex-direction:column}}
 
+/* ---- işlem geçmişi ---- */
+.gecmis-ust{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 14px}
+.gecmis-kart{background:var(--kart);border-radius:10px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--golge);border-left:3px solid var(--cizgi)}
+.gecmis-kart.ekle{border-left-color:#4C7A5B}.gecmis-kart.silme{border-left-color:var(--kirmizi)}.gecmis-kart.duzenle{border-left-color:var(--pirinc)}
+.gecmis-meta{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--soluk);margin-bottom:5px}
+.gecmis-bas{font-size:14px;font-weight:700;margin-bottom:3px}.gecmis-hedef{font-size:13px}.gecmis-detay{font-size:11.5px;color:var(--soluk);margin-top:5px;line-height:1.45;white-space:pre-wrap}
+.gecmis-kullanici{font-weight:600;color:var(--kadife);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ---- rapor ---- */
 .ozet-kutular{display:flex;gap:8px;margin-bottom:16px}
 .ozet-kutu{flex:1;background:var(--kart);border-radius:10px;padding:12px;box-shadow:var(--golge)}
@@ -313,6 +321,8 @@ let seciliOrg = null;
 let taslak = null;
 let raporAy = ayAnahtar(bugunISO());
 let giderAy = ayAnahtar(bugunISO());
+let auditKayitlari = [];
+let auditYukleniyor = false;
 
 function varsayilan(){
   return {
@@ -348,6 +358,11 @@ function serit(mesaj, tip){
   k.innerHTML = '<div class="serit '+(tip==="hata"?"hata":"")+'">'+esc(mesaj)+'</div>';
   if(tip!=="hata") setTimeout(()=>{ const x=el("serit"); if(x) x.innerHTML=""; }, 4000);
 }
+function tarihSaatYaz(iso){
+  if(!iso) return "—";
+  try{return new Intl.DateTimeFormat("tr-TR",{dateStyle:"short",timeStyle:"short"}).format(new Date(iso));}catch(e){return String(iso);}
+}
+function kisaKullanici(email){ return String(email||"Yetkili kullanıcı").split("@")[0]; }
 
 /* ================= ortak depolama / Supabase ================= */
 const CFG = window.MUCH_MORE_CONFIG || {};
@@ -441,6 +456,90 @@ async function kaydet(){
   return ok;
 }
 
+function auditSinif(action){
+  if(String(action).includes("sil")) return "silme";
+  if(String(action).includes("ekle") || String(action).includes("olustur") || String(action).includes("kopyala")) return "ekle";
+  return "duzenle";
+}
+function auditBaslik(action){
+  const m={
+    organizasyon_eklendi:"Organizasyon eklendi", organizasyon_guncellendi:"Organizasyon güncellendi", organizasyon_silindi:"Organizasyon silindi",
+    odeme_eklendi:"Ödeme eklendi", odeme_degisti:"Ödeme değiştirildi", odeme_silindi:"Ödeme silindi",
+    org_gider_eklendi:"Organizasyon gideri eklendi", org_gider_degisti:"Organizasyon gideri değiştirildi", org_gider_silindi:"Organizasyon gideri silindi",
+    sabit_gider_eklendi:"Sabit gider eklendi", sabit_gider_silindi:"Sabit gider silindi", sabit_gider_kopyalandi:"Sabit giderler kopyalandı",
+    genel_gider_eklendi:"Genel gider eklendi", genel_gider_silindi:"Genel gider silindi",
+    fiyat_listesi_eklendi:"Fiyat listesi eklendi", fiyat_listesi_silindi:"Fiyat listesi silindi", ayarlar_guncellendi:"Ayarlar güncellendi"
+  };
+  return m[action]||String(action||"İşlem").replaceAll("_"," ");
+}
+function auditDetayYaz(detail){
+  if(!detail) return "";
+  if(typeof detail==="string") return detail;
+  if(Array.isArray(detail.degisiklikler) && detail.degisiklikler.length) return detail.degisiklikler.join(" · ");
+  const a=[];
+  if(detail.tarih) a.push("Tarih: "+tarihYaz(detail.tarih));
+  if(detail.kisi) a.push(detail.kisi+" kişi");
+  if(detail.kalem) a.push(detail.kalem);
+  if(detail.tutar!=null) a.push(para(detail.tutar));
+  if(detail.eski!=null || detail.yeni!=null) a.push(String(detail.eski??"—")+" → "+String(detail.yeni??"—"));
+  if(detail.aciklama) a.push(detail.aciklama);
+  return a.join(" · ");
+}
+async function auditYaz(kayitlar){
+  if(!sb || !aktifKullanici || !kayitlar) return true;
+  const liste=(Array.isArray(kayitlar)?kayitlar:[kayitlar]).filter(Boolean);
+  if(!liste.length) return true;
+  const rows=liste.map(k=>({workspace_id:workspaceId(),action:k.action||"islem",entity_type:k.entity_type||"genel",entity_id:k.entity_id||null,entity_label:k.entity_label||null,detail:k.detail||{}}));
+  const {error}=await sb.from("audit_log").insert(rows);
+  if(error){console.error("Audit log yazılamadı",error);serit("İşlem kaydedildi fakat işlem geçmişine yazılamadı. SQL güncellemesini kontrol edin.","hata");return false;}
+  return true;
+}
+async function auditYukle(sessiz){
+  if(!sb || !aktifKullanici) return;
+  auditYukleniyor=true; if(!sessiz && ekran==="gecmis") ciz();
+  const {data,error}=await sb.from("audit_log").select("id,action,entity_type,entity_id,entity_label,detail,actor_email,created_at").eq("workspace_id",workspaceId()).order("created_at",{ascending:false}).limit(300);
+  auditYukleniyor=false;
+  if(error){console.error(error);if(!sessiz) serit("İşlem geçmişi okunamadı. Supabase SQL güncellemesini çalıştırın.","hata");return;}
+  auditKayitlari=data||[];
+}
+function auditKaydi(action,entity_type,entity_id,entity_label,detail){return {action,entity_type,entity_id,entity_label,detail:detail||{}};}
+function alanDegisiklikleri(eski,yeni){
+  const alanlar=[
+    ["musteri","Müşteri"],["telefon","Telefon"],["tur","Tür"],["tarih","Tarih"],["saat","Saat"],["kisiSayisi","Kişi sayısı"],["sonGorusme","Detay görüşmesi"],["kisiBasiOzel","Anlaşılan kişi başı"],["faturali","Faturalı"],["notlar","Notlar"],
+    ["menuler.ordovr","Ordövr"],["menuler.et","Et menü"],["menuler.tavuk","Tavuk menü"],["dekorasyon.tavan.renk","Tavan rengi"],["dekorasyon.tavan.ucret","Tavan ücreti"],["dekorasyon.perde.renk","Perde rengi"],["dekorasyon.perde.ucret","Perde ücreti"],["dekorasyon.zemin.ucret","Zemin ücreti"],["dekorasyon.masa.not","Masa üzeri dekorasyon"],["tasarim.menuKarti.secili","Menü kartı"],["tasarim.menuKarti.ucret","Menü kartı ücreti"],["tasarim.ayna.secili","Ayna"],["tasarim.ayna.ucret","Ayna ücreti"],["personel.garsonEkUcret","Garson yol/ek ücret"],["personel.garsonEkNot","Garson ek not"],["personel.dj","DJ gideri"],["personel.mutfak","Mutfak personeli gideri"]
+  ];
+  const get=(o,path)=>path.split(".").reduce((v,k)=>v==null?undefined:v[k],o);
+  const fmt=(v)=>typeof v==="boolean"?(v?"Evet":"Hayır"):(v==null||v===""?"—":String(v));
+  const d=[];
+  for(const [path,ad] of alanlar){const a=get(eski,path),b=get(yeni,path);if(!jsonEsit(a,b)) d.push(ad+": "+fmt(a)+" → "+fmt(b));}
+  return d;
+}
+function diziAudit(eski,yeni,tip,etiket,org){
+  const em=new Map((eski||[]).map(x=>[String(x.id),x])), nm=new Map((yeni||[]).map(x=>[String(x.id),x])), out=[];
+  const label=org.musteri||"İsimsiz organizasyon";
+  for(const [id,x] of nm){
+    const e=em.get(id);
+    if(!e) out.push(auditKaydi(tip+"_eklendi",tip,org.id,label,{kalem:x.etiket||x.kalem||etiket,tutar:sayi(x.tutar),tarih:x.tarih||org.tarih}));
+    else if(!jsonEsit(e,x)) out.push(auditKaydi(tip+"_degisti",tip,org.id,label,{aciklama:(e.etiket||e.kalem||etiket)+" → "+(x.etiket||x.kalem||etiket),eski:para(e.tutar),yeni:para(x.tutar),tarih:x.tarih||org.tarih}));
+  }
+  for(const [id,x] of em) if(!nm.has(id)) out.push(auditKaydi(tip+"_silindi",tip,org.id,label,{kalem:x.etiket||x.kalem||etiket,tutar:sayi(x.tutar),tarih:x.tarih||org.tarih}));
+  return out;
+}
+function orgAuditKayitlari(eski,yeni){
+  const label=yeni.musteri||"İsimsiz organizasyon", out=[];
+  if(!eski){
+    out.push(auditKaydi("organizasyon_eklendi","organizasyon",yeni.id,label,{tarih:yeni.tarih,kisi:sayi(yeni.kisiSayisi),tutar:hesapla(yeni).toplam}));
+    out.push(...diziAudit([],yeni.odemeler,"odeme","Ödeme",yeni),...diziAudit([],yeni.giderler,"org_gider","Gider",yeni));
+    return out;
+  }
+  const d=alanDegisiklikleri(eski,yeni);
+  const eskiEkstra=eski.dekorasyon&&eski.dekorasyon.ekstra||[], yeniEkstra=yeni.dekorasyon&&yeni.dekorasyon.ekstra||[];
+  if(!jsonEsit(eskiEkstra,yeniEkstra)) d.push("Ekstra dekorasyon kalemleri değiştirildi");
+  if(d.length) out.push(auditKaydi("organizasyon_guncellendi","organizasyon",yeni.id,label,{degisiklikler:d}));
+  out.push(...diziAudit(eski.odemeler,yeni.odemeler,"odeme","Ödeme",yeni),...diziAudit(eski.giderler,yeni.giderler,"org_gider","Gider",yeni));
+  return out;
+}
+
 function girisHTML(hata){
   if(!bulutHazir()) return '<div class="giris-kabuk"><div class="giris-kart"><h1 class="serif giris-logo">Much&amp;More</h1><p class="giris-alt">Ortak Organizasyon Yönetimi</p><div class="giris-bilgi"><b>Bulut kurulumu tamamlanmamış.</b><br>ZIP içindeki <b>KURULUM-ORTAK.md</b> adımlarını yapıp <b>config.js</b> içine Project URL ve Publishable key değerlerini yapıştırın.</div></div></div>';
   return '<div class="giris-kabuk"><form class="giris-kart" id="girisForm"><h1 class="serif giris-logo">Much&amp;More</h1><p class="giris-alt">Ortak Organizasyon Yönetimi</p><div class="alan"><label class="et">E-posta</label><input class="gir" id="girisEmail" type="email" autocomplete="username" required placeholder="ornek@eposta.com"></div><div class="alan"><label class="et">Şifre</label><input class="gir" id="girisSifre" type="password" autocomplete="current-password" required placeholder="••••••••"></div><button class="dg ana genis" type="submit">Giriş yap</button><div class="giris-hata" id="girisHata"'+(hata?' style="display:block"':'')+'>'+esc(hata||"")+'</div></form></div>';
@@ -472,6 +571,10 @@ async function bulutDinle(){
       senkronDurum("Bulutta yeni değişiklik var","ok");
       serit("Diğer cihazdan yeni bir değişiklik geldi. Bu formu kaydettiğinizde değişiklikler birleştirilecek.");
     }
+  }).on("postgres_changes",{event:"INSERT",schema:"public",table:"audit_log",filter:"workspace_id=eq."+workspaceId()},payload=>{
+    if(!payload.new) return;
+    auditKayitlari=[payload.new,...auditKayitlari.filter(x=>x.id!==payload.new.id)].slice(0,300);
+    if(ekran==="gecmis") ciz();
   }).subscribe();
 }
 
@@ -688,10 +791,11 @@ function sekmeIkon(ad){
   if(ad==="takvim") return '<svg '+b+'><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
   if(ad==="gider") return '<svg '+b+'><path d="M4 19V9M10 19V5M16 19v-6M20 19H3"/></svg>';
   if(ad==="rapor") return '<svg '+b+'><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v6h6M8 14h8M8 17h5"/></svg>';
+  if(ad==="gecmis") return '<svg '+b+'><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/></svg>';
   return '<svg '+b+'><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
 }
 function sekmeleriCiz(){
-  const liste=[["takvim","Takvim"],["gider","Giderler"],["rapor","Rapor"],["fiyat","Fiyatlar"]];
+  const liste=[["takvim","Takvim"],["gider","Giderler"],["rapor","Rapor"],["fiyat","Fiyatlar"],["gecmis","Geçmiş"]];
   const aktif=(ekran==="detay"||ekran==="form")?"takvim":ekran;
   el("sekmeler").innerHTML=liste.map(x=>'<button class="sekme '+(aktif===x[0]?"aktif":"")+'" data-sekme="'+x[0]+'">'+sekmeIkon(x[0])+x[1]+'</button>').join("");
 }
@@ -815,10 +919,20 @@ function fiyatEkrani(){
     +'<h3 class="bolum-baslik">Veri</h3><div class="kart"><button class="dg genis" id="yedekAl">Yedek indir (JSON)</button><p class="ipucu">Tüm kayıtları bilgisayarınıza indirir. Düzenli yedek almanız iyi olur.</p></div><p class="ipucu" style="text-align:center">Veri saklama: '+(Depo.mod==="ortak"?"ortak (ekip)":Depo.mod==="cihaz"?"bu cihaz":"geçici")+'</p></div>';
 }
 
+/* ================= işlem geçmişi ================= */
+function gecmisEkrani(){
+  const liste=auditKayitlari||[];
+  return '<div class="ekran"><div class="gecmis-ust"><div><h2 class="serif" style="font-size:23px;margin:0 0 3px">İşlem Geçmişi</h2><p class="ipucu" style="margin:0">Kim, neyi, ne zaman değiştirdi. Bu kayıtlar uygulamadan silinemez.</p></div><button class="dg ufak" id="gecmisYenile">Yenile</button></div>'
+    +(auditYukleniyor?'<div class="kart"><p class="bos" style="margin:0">Geçmiş yükleniyor…</p></div>':'')
+    +(!auditYukleniyor&&!liste.length?'<div class="kart"><p class="bos" style="margin:0">Henüz işlem geçmişi yok. Bu özellik kurulduktan sonra yapılan işlemler burada görünecek.</p></div>':'')
+    +liste.map(k=>'<div class="gecmis-kart '+auditSinif(k.action)+'"><div class="gecmis-meta"><span class="gecmis-kullanici">'+esc(kisaKullanici(k.actor_email))+'</span><span>'+esc(tarihSaatYaz(k.created_at))+'</span></div><div class="gecmis-bas">'+esc(auditBaslik(k.action))+'</div>'+(k.entity_label?'<div class="gecmis-hedef">'+esc(k.entity_label)+'</div>':'')+(auditDetayYaz(k.detail)?'<div class="gecmis-detay">'+esc(auditDetayYaz(k.detail))+'</div>':'')+'</div>').join('')
+    +'<p class="ipucu" style="text-align:center">Son 300 işlem gösterilir. Kayıt zamanı ve kullanıcı kimliği Supabase tarafından atanır.</p></div>';
+}
+
 /* ================= çizim ================= */
 function ciz(){
   let icerik="";
-  if(ekran==="takvim") icerik=takvimEkrani(); else if(ekran==="detay") icerik=detayEkrani(); else if(ekran==="form") icerik=formEkrani(); else if(ekran==="gider") icerik=giderEkrani(); else if(ekran==="rapor") icerik=raporEkrani(); else if(ekran==="fiyat") icerik=fiyatEkrani();
+  if(ekran==="takvim") icerik=takvimEkrani(); else if(ekran==="detay") icerik=detayEkrani(); else if(ekran==="form") icerik=formEkrani(); else if(ekran==="gider") icerik=giderEkrani(); else if(ekran==="rapor") icerik=raporEkrani(); else if(ekran==="fiyat") icerik=fiyatEkrani(); else if(ekran==="gecmis") icerik=gecmisEkrani();
   el("uygulama").innerHTML=icerik; senkronDurum(D.organizasyonlar.length+" kayıt · senkron","ok"); sekmeleriCiz(); if(ekran==="form") formOzetGuncelle(); window.scrollTo(0,0);
 }
 
@@ -837,14 +951,15 @@ document.addEventListener("submit",async(e)=>{
 document.addEventListener("click",async(e)=>{
   const h=(s)=>e.target.closest(s); let n;
   if(h("#oturumCik")){ if(sb) await sb.auth.signOut(); aktifKullanici=null; if(kanal) try{await sb.removeChannel(kanal);}catch(_e){} D=null; girisGoster(); return; }
-  if((n=h("[data-sekme]"))){ekran=n.dataset.sekme;acikGun=null;ciz();return;}
+  if((n=h("[data-sekme]"))){ekran=n.dataset.sekme;acikGun=null;if(ekran==="gecmis") await auditYukle(true);ciz();return;}
+  if(h("#gecmisYenile")){await auditYukle(true);ciz();return;}
   if((n=h("[data-ay]"))){acikAy+=Number(n.dataset.ay);acikGun=null;if(acikAy<0){acikAy=11;acikYil--;}if(acikAy>11){acikAy=0;acikYil++;}ciz();return;}
   if((n=h("[data-gun]"))){acikGun=acikGun===n.dataset.gun?null:n.dataset.gun;ciz();return;}
   if((n=h("[data-yeni]"))){taslak=yeniOrg(n.dataset.yeni);seciliOrg=null;ekran="form";ciz();return;}
   if((n=h("[data-org]"))){seciliOrg=n.dataset.org;ekran="detay";ciz();return;}
   if(h("[data-geri]")){ekran=(ekran==="form"&&seciliOrg&&D.organizasyonlar.some(x=>x.id===seciliOrg))?"detay":"takvim";ciz();return;}
   if((n=h("[data-duzenle]"))){const org=D.organizasyonlar.find(x=>x.id===n.dataset.duzenle);taslak=orgNormalize(klon(org),D);seciliOrg=org.id;ekran="form";ciz();return;}
-  if((n=h("[data-sil]"))){if(!confirm("Bu organizasyon silinsin mi? Geri alınamaz."))return;D.organizasyonlar=D.organizasyonlar.filter(x=>x.id!==n.dataset.sil);seciliOrg=null;ekran="takvim";await kaydet();ciz();return;}
+  if((n=h("[data-sil]"))){if(!confirm("Bu organizasyon silinsin mi? Geri alınamaz."))return;const silinen=D.organizasyonlar.find(x=>x.id===n.dataset.sil);D.organizasyonlar=D.organizasyonlar.filter(x=>x.id!==n.dataset.sil);seciliOrg=null;ekran="takvim";const ok=await kaydet();if(ok&&silinen)await auditYaz(auditKaydi("organizasyon_silindi","organizasyon",silinen.id,silinen.musteri||"İsimsiz organizasyon",{tarih:silinen.tarih,kisi:sayi(silinen.kisiSayisi),tutar:hesapla(silinen).toplam}));ciz();return;}
   if((n=h("[data-kat]"))){el("kat_"+n.dataset.kat).classList.toggle("acik");return;}
   if((n=h("[data-cip]"))){taslak.tur=n.dataset.cip;n.parentElement.querySelectorAll(".cip").forEach(c=>c.classList.remove("secili"));n.classList.add("secili");return;}
   if((n=h("[data-renk]"))){const grup=n.closest("[data-renk-grup]"),yol=grup.dataset.renkGrup.split(".");taslak[yol[0]][yol[1]][yol[2]]=n.dataset.renk;grup.querySelectorAll(".renk").forEach(c=>c.classList.remove("secili"));n.classList.add("secili");return;}
@@ -856,18 +971,18 @@ document.addEventListener("click",async(e)=>{
   if((n=h("[data-odeme-sil]"))){taslak.odemeler=taslak.odemeler.filter(p=>p.id!==n.dataset.odemeSil);formOzetGuncelle();return;}
   if(h("#giderEkle")){const tutar=sayi(el("giderTutar").value);if(!tutar)return;taslak.giderler.push({id:yeniId(),kalem:el("giderKalem").value,tutar,tarih:el("giderTarih").value||taslak.tarih});el("giderTutar").value="";formOzetGuncelle();return;}
   if((n=h("[data-gider-sil]"))){taslak.giderler=taslak.giderler.filter(g=>g.id!==n.dataset.giderSil);formOzetGuncelle();return;}
-  if(h("#kaydetDugme")){if(!taslak.musteri.trim()){formHata("Müşteri adı gerekli.");return;}if(!taslak.tarih){formHata("Organizasyon tarihi gerekli.");return;}const i=D.organizasyonlar.findIndex(x=>x.id===taslak.id);if(i>=0)D.organizasyonlar[i]=orgNormalize(klon(taslak),D);else D.organizasyonlar.push(orgNormalize(klon(taslak),D));seciliOrg=taslak.id;await kaydet();ekran="detay";ciz();serit("Kaydedildi.");return;}
+  if(h("#kaydetDugme")){if(!taslak.musteri.trim()){formHata("Müşteri adı gerekli.");return;}if(!taslak.tarih){formHata("Organizasyon tarihi gerekli.");return;}const i=D.organizasyonlar.findIndex(x=>x.id===taslak.id),eski=i>=0?klon(D.organizasyonlar[i]):null,yeni=orgNormalize(klon(taslak),D);if(i>=0)D.organizasyonlar[i]=yeni;else D.organizasyonlar.push(yeni);seciliOrg=taslak.id;const ok=await kaydet();if(ok)await auditYaz(orgAuditKayitlari(eski,yeni));ekran="detay";ciz();serit("Kaydedildi.");return;}
   if((n=h("[data-gider-ay]"))){giderAy=ayKaydir(giderAy,Number(n.dataset.giderAy));ciz();return;}
-  if(h("#sabitEkle")){const kalem=el("sabitKalem").value.trim(),tutar=sayi(el("sabitTutar").value);if(!kalem||!tutar)return;if(!D.sabitGiderler[giderAy])D.sabitGiderler[giderAy]=[];D.sabitGiderler[giderAy].push({id:yeniId(),kalem,tutar});await kaydet();ciz();return;}
-  if((n=h("[data-sabit-sil]"))){D.sabitGiderler[giderAy]=(D.sabitGiderler[giderAy]||[]).filter(s=>s.id!==n.dataset.sabitSil);await kaydet();ciz();return;}
-  if(h("#oncekiAydanKopyala")){const onceki=ayKaydir(giderAy,-1),kaynak=D.sabitGiderler[onceki]||[];if(!kaynak.length){serit("Önceki ayda sabit gider yok.","hata");return;}D.sabitGiderler[giderAy]=kaynak.map(s=>({id:yeniId(),kalem:s.kalem,tutar:s.tutar}));await kaydet();ciz();serit(kaynak.length+" kalem kopyalandı.");return;}
-  if(h("#digerEkle")){const kalem=el("digerKalem").value.trim(),tutar=sayi(el("digerTutar").value);if(!kalem||!tutar)return;D.digerGiderler.push({id:yeniId(),kalem,tutar,tarih:el("digerTarih").value||giderAy+"-01",aciklama:el("digerAciklama").value.trim()});await kaydet();ciz();return;}
-  if((n=h("[data-diger-sil]"))){D.digerGiderler=D.digerGiderler.filter(g=>g.id!==n.dataset.digerSil);await kaydet();ciz();return;}
+  if(h("#sabitEkle")){const kalem=el("sabitKalem").value.trim(),tutar=sayi(el("sabitTutar").value);if(!kalem||!tutar)return;if(!D.sabitGiderler[giderAy])D.sabitGiderler[giderAy]=[];const yeni={id:yeniId(),kalem,tutar};D.sabitGiderler[giderAy].push(yeni);const ok=await kaydet();if(ok)await auditYaz(auditKaydi("sabit_gider_eklendi","sabit_gider",yeni.id,ayAdi(giderAy),{kalem,tutar}));ciz();return;}
+  if((n=h("[data-sabit-sil]"))){const silinen=(D.sabitGiderler[giderAy]||[]).find(s=>s.id===n.dataset.sabitSil);D.sabitGiderler[giderAy]=(D.sabitGiderler[giderAy]||[]).filter(s=>s.id!==n.dataset.sabitSil);const ok=await kaydet();if(ok&&silinen)await auditYaz(auditKaydi("sabit_gider_silindi","sabit_gider",silinen.id,ayAdi(giderAy),{kalem:silinen.kalem,tutar:sayi(silinen.tutar)}));ciz();return;}
+  if(h("#oncekiAydanKopyala")){const onceki=ayKaydir(giderAy,-1),kaynak=D.sabitGiderler[onceki]||[];if(!kaynak.length){serit("Önceki ayda sabit gider yok.","hata");return;}D.sabitGiderler[giderAy]=kaynak.map(s=>({id:yeniId(),kalem:s.kalem,tutar:s.tutar}));const ok=await kaydet();if(ok)await auditYaz(auditKaydi("sabit_gider_kopyalandi","sabit_gider",null,ayAdi(giderAy),{aciklama:ayAdi(onceki)+" ayından "+kaynak.length+" kalem kopyalandı"}));ciz();serit(kaynak.length+" kalem kopyalandı.");return;}
+  if(h("#digerEkle")){const kalem=el("digerKalem").value.trim(),tutar=sayi(el("digerTutar").value);if(!kalem||!tutar)return;const yeni={id:yeniId(),kalem,tutar,tarih:el("digerTarih").value||giderAy+"-01",aciklama:el("digerAciklama").value.trim()};D.digerGiderler.push(yeni);const ok=await kaydet();if(ok)await auditYaz(auditKaydi("genel_gider_eklendi","genel_gider",yeni.id,yeni.aciklama||"Genel gider",{kalem,tutar,tarih:yeni.tarih}));ciz();return;}
+  if((n=h("[data-diger-sil]"))){const silinen=D.digerGiderler.find(g=>g.id===n.dataset.digerSil);D.digerGiderler=D.digerGiderler.filter(g=>g.id!==n.dataset.digerSil);const ok=await kaydet();if(ok&&silinen)await auditYaz(auditKaydi("genel_gider_silindi","genel_gider",silinen.id,silinen.aciklama||"Genel gider",{kalem:silinen.kalem,tutar:sayi(silinen.tutar),tarih:silinen.tarih}));ciz();return;}
   if((n=h("[data-rapor-ay]"))){raporAy=ayKaydir(raporAy,Number(n.dataset.raporAy));ciz();return;}
   if(h("#pdfDugme")){pdfYazdir();return;} if(h("#excelDugme")){excelIndir();return;}
-  if(h("#fiyatEkle")){D.menuFiyatlari.push(fiyatNormalize({id:yeniId(),gecerli:el("fTarih").value||bugunISO(),ordovr50:sayi(el("fOrdovr50").value),et50:sayi(el("fEt50").value),tavuk50:sayi(el("fTavuk50").value),ordovr100:sayi(el("fOrdovr100").value),et100:sayi(el("fEt100").value),tavuk100:sayi(el("fTavuk100").value)}));await kaydet();ciz();serit("Yeni fiyat listesi eklendi.");return;}
-  if((n=h("[data-fiyat-sil]"))){if(D.menuFiyatlari.length<=1){serit("En az bir fiyat listesi kalmalı.","hata");return;}if(!confirm("Bu fiyat listesi silinsin mi? Mevcut organizasyonların sabitlenmiş fiyatları etkilenmez."))return;D.menuFiyatlari=D.menuFiyatlari.filter(f=>f.id!==n.dataset.fiyatSil);await kaydet();ciz();return;}
-  if(h("#ayarKaydet")){D.ayarlar.garsonBasi=sayi(el("aGarson").value)||10;D.ayarlar.garsonUcreti=sayi(el("aGarsonUcret").value)||2000;D.ayarlar.faturaOrani=sayi(el("aFatura").value);await kaydet();ciz();serit("Ayarlar kaydedildi.");return;}
+  if(h("#fiyatEkle")){const yeni=fiyatNormalize({id:yeniId(),gecerli:el("fTarih").value||bugunISO(),ordovr50:sayi(el("fOrdovr50").value),et50:sayi(el("fEt50").value),tavuk50:sayi(el("fTavuk50").value),ordovr100:sayi(el("fOrdovr100").value),et100:sayi(el("fEt100").value),tavuk100:sayi(el("fTavuk100").value)});D.menuFiyatlari.push(yeni);const ok=await kaydet();if(ok)await auditYaz(auditKaydi("fiyat_listesi_eklendi","fiyat_listesi",yeni.id,tarihYaz(yeni.gecerli)+" fiyat listesi",{aciklama:"50–80: Ordövr "+para(yeni.ordovr50)+", Et "+para(yeni.et50)+", Tavuk "+para(yeni.tavuk50)+" · 100+: Ordövr "+para(yeni.ordovr100)+", Et "+para(yeni.et100)+", Tavuk "+para(yeni.tavuk100)}));ciz();serit("Yeni fiyat listesi eklendi.");return;}
+  if((n=h("[data-fiyat-sil]"))){if(D.menuFiyatlari.length<=1){serit("En az bir fiyat listesi kalmalı.","hata");return;}if(!confirm("Bu fiyat listesi silinsin mi? Mevcut organizasyonların sabitlenmiş fiyatları etkilenmez."))return;const silinen=D.menuFiyatlari.find(f=>f.id===n.dataset.fiyatSil);D.menuFiyatlari=D.menuFiyatlari.filter(f=>f.id!==n.dataset.fiyatSil);const ok=await kaydet();if(ok&&silinen)await auditYaz(auditKaydi("fiyat_listesi_silindi","fiyat_listesi",silinen.id,tarihYaz(silinen.gecerli)+" fiyat listesi",{}));ciz();return;}
+  if(h("#ayarKaydet")){const eski=klon(D.ayarlar);D.ayarlar.garsonBasi=sayi(el("aGarson").value)||10;D.ayarlar.garsonUcreti=sayi(el("aGarsonUcret").value)||2000;D.ayarlar.faturaOrani=sayi(el("aFatura").value);const ok=await kaydet();if(ok&&!jsonEsit(eski,D.ayarlar))await auditYaz(auditKaydi("ayarlar_guncellendi","ayarlar",null,"Genel ayarlar",{degisiklikler:["1 garson / "+eski.garsonBasi+" kişi → "+D.ayarlar.garsonBasi+" kişi","Garson ücreti "+para(eski.garsonUcreti)+" → "+para(D.ayarlar.garsonUcreti),"Fatura %"+eski.faturaOrani+" → %"+D.ayarlar.faturaOrani]}));ciz();serit("Ayarlar kaydedildi.");return;}
   if(h("#yedekAl")){yedekIndir();return;}
 });
 

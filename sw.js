@@ -1,5 +1,5 @@
 /* Much&More Organizasyon Yönetimi — çevrimdışı önbellek */
-const SURUM = "much-more-v4-cloud-connected-1";
+const SURUM = "much-more-v5-audit-1";
 const DOSYALAR = [
   "./",
   "./index.html",
