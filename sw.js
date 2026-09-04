@@ -1,5 +1,5 @@
 /* Much&More Organizasyon Yönetimi — çevrimdışı önbellek */
-const SURUM = "much-more-v6-1-iptal-tarih-2";
+const SURUM = "much-more-v7-crm-dosyalar-1";
 const DOSYALAR = [
   "./",
   "./index.html",

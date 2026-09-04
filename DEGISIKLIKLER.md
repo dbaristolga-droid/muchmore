@@ -37,3 +37,11 @@
 - İptal edilen organizasyonda kalan alacak sıfırlanır ve aktif satış toplamından çıkarılır.
 - Tarih değişiklikleri eski/yeni tarih ve notla kalıcı tutulur.
 - Audit log, PDF ve Excel raporları yeni alanlarla güncellendi.
+
+## v7 — CRM ve operasyon takibi
+- Müşteri / organizasyon arama ve filtreleme eklendi.
+- 7/30 günlük yaklaşan işler ekranı eklendi.
+- Yaklaşan organizasyonlarda kalan ödeme için tahsilat uyarıları eklendi.
+- Müşteri iletişim geçmişi eklendi; kullanıcı ve tarih/saat tutulur.
+- Supabase Storage tabanlı sözleşme, dekont, görsel ve diğer dosya ekleri eklendi.
+- Dosya ve iletişim ekleme/silme işlemleri işlem geçmişine eklendi.
