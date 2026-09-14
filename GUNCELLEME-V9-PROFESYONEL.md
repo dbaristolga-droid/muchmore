@@ -28,3 +28,19 @@ ZIP içindeki dosyaları GitHub Pages reposunun kök dizinine yükleyip mevcut d
 - Tahsilat kartında toplam tahsilat ve güncel kalan bakiye ayrıca gösterilir.
 - Takvimde yalnızca bir organizasyon bulunan güne dokununca doğrudan organizasyon detayına girilir. Birden fazla organizasyon varsa günlük seçim paneli açılır.
 - Service Worker sürümü yükseltildi; eski önbellek yeni sürümü engellemez.
+
+
+## v9.2 — Tahsilat giriş düzeltmesi
+- Tahsilat tutarı alanı Türkçe para yazımını kabul edecek şekilde düzeltildi.
+- `50000`, `50.000`, `50,000`, `50.000,50` gibi girişler doğru okunur.
+- Tarayıcının `type=number` alanında binlik ayıracı yüzünden değeri boşaltması engellendi.
+- Hatalı tutar mesajı daha açıklayıcı yapıldı.
+- PWA önbellek sürümü yenilendi.
+- Takvimde tek organizasyon olan güne tıklayınca doğrudan detay ekranına geçiş korunur.
+
+## v9.2 — Tahsilat tıklama çakışması düzeltmesi
+- Tahsilat kaydet butonunun genel `data-org` navigasyon yakalayıcısıyla çakışması giderildi.
+- Tutar girilmişken alanın yeniden çizilip boşalmasına neden olan hata düzeltildi.
+- Tahsilat butonu artık `data-pay-org`, checklist kontrolleri `data-v9-org` kullanıyor.
+- Başarılı tahsilattan sonra ödeme tablosu sunucudan yeniden okunuyor; kalan bakiye gerçek `mm_payments` toplamından güncelleniyor.
+- Service worker önbellek sürümü yükseltildi (`much-more-v9-profesyonel-4`).
