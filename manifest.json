@@ -1,15 +1,15 @@
 {
-  "name": "Much&More Organizasyon Yönetimi",
+  "name": "Much & More Event Hall Yönetim Paneli",
   "short_name": "Much&More",
-  "description": "Much&More organizasyon takibi, fiyatlandırma, dekorasyon, ödeme, gider ve aylık raporlama",
+  "description": "Much & More Event Hall profesyonel organizasyon, tahsilat, personel ve finans yönetimi",
   "lang": "tr",
   "dir": "ltr",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#EEEFEC",
-  "theme_color": "#EEEFEC",
+  "background_color": "#0B0D10",
+  "theme_color": "#0B0D10",
   "icons": [
     {
       "src": "ikon-192.png",

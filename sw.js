@@ -1,5 +1,5 @@
 /* Much&More Organizasyon Yönetimi — çevrimdışı önbellek */
-const SURUM = "much-more-v8-personel-1";
+const SURUM = "much-more-v9-profesyonel-1";
 const DOSYALAR = [
   "./",
   "./index.html",
@@ -7,7 +7,8 @@ const DOSYALAR = [
   "./config.js",
   "./ikon.png",
   "./ikon-192.png",
-  "./ikon-512.png"
+  "./ikon-512.png",
+  "./logo-muchmore.jpg"
 ];
 
 self.addEventListener("install", (e) => {

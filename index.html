@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<title>Much&More Organizasyon Yönetimi</title>
-<meta name="theme-color" content="#EEEFEC">
+<title>Much&More | Yönetim Paneli</title>
+<meta name="theme-color" content="#0B0D10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Much&More">
@@ -293,14 +293,56 @@ textarea.gir{resize:vertical;line-height:1.45;font-size:15px}
   #yazdirma .pdf-sonuc{margin-top:18px;border:2px solid #1C2523;padding:10px 12px;display:flex;justify-content:space-between;font-size:15px}.pdf-dip{font-size:9px;color:#777;margin-top:18px;text-align:center}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+
+/* ================= v9 PREMIUM MUCH&MORE ================= */
+:root{
+  --porselen:#F2F3F2;--kart:#FFFFFF;--murekkep:#111318;--soluk:#747A82;
+  --kadife:#111820;--pirinc:#8D99A6;--kirmizi:#9B3434;--cizgi:#DDE0E3;
+  --golge:0 10px 28px rgba(12,16,22,.06);--premium:#0B0D10;--silver:#AEB7C2;--soft:#E9ECEF;
+}
+body{background:linear-gradient(180deg,#ECEFEE 0,#F6F6F4 260px,#F2F3F2 100%)}
+.kabuk{max-width:620px}
+.premium-tepe{background:linear-gradient(135deg,#080A0D,#151A20);color:#fff;margin:0 0 8px;padding:calc(env(safe-area-inset-top) + 12px) 18px 14px;box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.premium-marka{display:flex;align-items:center;gap:11px;min-width:0}.premium-marka img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid #56616E;box-shadow:0 0 0 3px rgba(255,255,255,.04)}
+.premium-marka strong{display:block;font-family:"Bodoni Moda",Georgia,serif;font-size:20px;line-height:1.05;font-weight:600}.premium-marka span{display:block;font-size:9px;letter-spacing:.15em;color:#B8C0C9;margin-top:4px;font-weight:700}
+.premium-tepe .senkron,.premium-tepe .tepe-not{color:#C7CDD3}.premium-tepe .senkron-nokta.ok{background:#7FD19A}
+.oturum-satir{background:#fff;border-radius:0 0 14px 14px;padding:8px 18px 10px;margin-top:-8px;box-shadow:0 4px 16px rgba(12,16,22,.04)}
+.kart,.satir,.ozet-kutu,.katlanir{border:1px solid rgba(19,24,32,.05);box-shadow:var(--golge)}
+.dg{border-radius:11px}.dg.ana{background:linear-gradient(135deg,#111820,#28333F);border-color:#111820;box-shadow:0 7px 18px rgba(17,24,32,.15)}
+.sekmeler{max-width:620px;background:rgba(10,13,17,.94);border-top:1px solid rgba(255,255,255,.08);padding-top:8px}.sekme{color:#8F99A5}.sekme.aktif{color:#fff}.sekme svg{stroke-width:1.7}
+.bolum-baslik{letter-spacing:.04em;text-transform:uppercase;font-size:10px;font-weight:800;color:#77808A}
+
+/* giriş */
+.giris-kabuk{max-width:none;padding:0;min-height:100vh;background:radial-gradient(circle at 50% 10%,#27303A 0,#0B0D10 38%,#050607 100%);display:grid;place-items:center}
+.giris-kart{max-width:410px;border:1px solid rgba(255,255,255,.12);background:rgba(16,19,24,.93);backdrop-filter:blur(18px);color:#fff;border-radius:24px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.42)}
+.giris-kart .et{color:#ADB5BE}.giris-kart .gir{background:#15191F;border-color:#313841;color:#fff}.giris-kart .gir::placeholder{color:#6D747C}.giris-alt{color:#AAB1B9;text-align:center;margin-bottom:24px}.giris-hata{background:#32191B;color:#FFC6C6}.giris-bilgi{background:#22272E;color:#DEE3E8}
+.giris-brand{text-align:center;margin-bottom:22px}.giris-brand img{width:126px;height:126px;object-fit:cover;border-radius:50%;border:1px solid #677382;box-shadow:0 14px 40px rgba(0,0,0,.36)}.giris-brand h1{margin:13px 0 3px;font-size:29px}.giris-brand p{margin:0;color:#9DA7B1;font-size:11px;letter-spacing:.13em;font-weight:700}
+
+/* dashboard */
+.dashboard-hero{background:linear-gradient(135deg,#0B0D10,#202832);border-radius:20px;padding:18px;color:#fff;margin:4px 0 14px;box-shadow:0 18px 40px rgba(12,16,22,.2);position:relative;overflow:hidden}.dashboard-hero:after{content:"M";position:absolute;right:-12px;bottom:-48px;font-family:Georgia,serif;font-size:180px;color:rgba(255,255,255,.035);line-height:1}.dash-eyebrow{font-size:10px;letter-spacing:.13em;color:#AEB7C2;font-weight:800}.dash-title{font-family:"Bodoni Moda",Georgia,serif;font-size:27px;margin:5px 0 4px;position:relative;z-index:1}.dash-sub{font-size:12px;color:#C0C6CD;margin:0;position:relative;z-index:1}.dash-kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}.dash-kpi .kpi{background:#fff;border:1px solid #E4E6E8;border-radius:14px;padding:13px;box-shadow:var(--golge)}.kpi b{display:block;font-size:20px;line-height:1.15}.kpi small{font-size:10px;color:var(--soluk)}.kpi .poz{color:#2E6848}.kpi .neg{color:var(--kirmizi)}
+.dash-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:18px}.dash-actions button{border:1px solid #E0E3E6;background:#fff;border-radius:12px;padding:11px 6px;font-size:11px;font-weight:700;color:#26313C}.dash-actions b{display:block;font-size:18px;color:#111820;margin-bottom:2px}
+.prog{height:7px;border-radius:999px;background:#E7EAED;overflow:hidden}.prog>i{display:block;height:100%;background:linear-gradient(90deg,#8794A2,#202A34)}
+.task-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--cizgi)}.task-row:last-child{border-bottom:0}.task-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;background:#C6CDD4}.task-dot.acil{background:#B24A4A}.task-dot.iyi{background:#4D8C69}.task-main{flex:1;min-width:0}.task-main b{font-size:13px}.task-main span{display:block;font-size:11px;color:var(--soluk);margin-top:2px}.task-value{font-size:12px;font-weight:800;white-space:nowrap}
+
+/* ödemeler/checklist */
+.v9-payment{border-left:3px solid #7A8795}.v9-method{display:inline-flex;border:1px solid #D7DCE1;background:#F4F6F7;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:800;color:#5D6874;margin-left:5px}.v9-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check-grid{display:grid;grid-template-columns:1fr;gap:7px}.check-item{display:flex;align-items:center;gap:10px;padding:10px 11px;background:#F6F7F7;border:1px solid #E1E4E6;border-radius:10px}.check-item input{width:20px;height:20px;accent-color:#1B2631}.check-item span{font-size:13px;flex:1}.check-item.done{background:#EEF5F0;border-color:#D8E8DD}.check-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.check-head b{font-size:14px}.check-head span{font-size:11px;color:var(--soluk)}
+
+/* personel */
+.personel-menu-box{margin-top:10px;padding:10px 11px;border-radius:10px;background:#F3F5F6;border:1px solid #E1E5E8}.personel-menu-box b{display:block;font-size:10px;color:#747E89;text-transform:uppercase;letter-spacing:.06em}.personel-menu-box span{display:block;font-size:15px;font-weight:800;margin-top:2px}.personel-waiter{display:inline-flex;margin-top:9px;padding:5px 9px;border-radius:999px;background:#EDF1F4;font-size:11px;font-weight:800;color:#38434E}
+
+/* şahsi gider */
+.sahsi-kart{border-left:4px solid #6D7782}.sahsi-rozet{display:inline-flex;padding:4px 8px;border-radius:999px;background:#E9EDF0;color:#4D5965;font-size:9px;font-weight:800;letter-spacing:.05em}.rapor-ayrim{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rapor-ayrim .kart{margin:0}.rapor-ayrim b{font-size:19px}.rapor-ayrim small{font-size:10px;color:var(--soluk)}
+
+@media(max-width:420px){.dashboard-hero{border-radius:16px}.dash-kpi{grid-template-columns:1fr 1fr}.dash-actions{grid-template-columns:1fr 1fr 1fr}.v9-form-grid{grid-template-columns:1fr}.rapor-ayrim{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
 <div id="girisEkrani" style="display:none"></div>
 <div id="ortakUygulama" style="display:none">
 <div class="kabuk">
-  <header class="tepe">
-    <h1 class="marka serif">Much&More <span style="font-family:Karla,system-ui;font-size:11px;font-weight:600;color:var(--soluk);letter-spacing:.04em">ORGANİZASYON</span></h1>
+  <header class="tepe premium-tepe">
+    <div class="premium-marka"><img src="logo-muchmore.jpg" alt="Much & More"><div><strong>Much & More</strong><span>EVENT HALL · YÖNETİM</span></div></div>
     <span class="tepe-not" id="tepeNot"></span>
   </header>
   <div class="oturum-satir"><span id="oturumKim"></span><button class="oturum-cik" id="oturumCik" type="button">Çıkış</button></div>
@@ -1050,7 +1092,7 @@ function formEkrani(){
     +'<div class="alan" style="border-bottom:1px solid var(--cizgi);padding-bottom:16px"><label class="et" style="font-size:13px;font-weight:600;color:var(--murekkep)">Masa üzeri dekorasyon</label><textarea class="gir" rows="3" data-dekor="masa.not" placeholder="Masa üstü çiçek, şamdan, runner, peçete, servis düzeni vb.">'+esc(dk.masa.not)+'</textarea><p class="ipucu">Bu alan sadece nottur; ücrete eklenmez.</p></div>'
     +'<div class="alan"><label class="et" style="font-size:13px;font-weight:600;color:var(--murekkep)">Ekstra dekorasyon</label><div id="ekstraDekorListe"></div><div class="ekle-satir"><input class="gir" id="ekstraDekorAciklama" placeholder="Açıklama"><input class="gir" type="number" inputmode="decimal" id="ekstraDekorTutar" placeholder="Tutar"><button type="button" class="dg ana" id="ekstraDekorEkle">Ekle</button></div><p class="ipucu">Eklediğiniz her kalem müşteri genel toplamına eklenir.</p></div>';
   const tasarim='<label class="onay"><input type="checkbox" data-tasarim="menuKarti" '+(ts.menuKarti.secili?"checked":"")+'> Menü kartı tasarımı</label><input class="gir" data-tasarim-alan="menuKarti.aciklama" value="'+esc(ts.menuKarti.aciklama)+'" placeholder="Model / not" style="margin-bottom:8px"><input class="gir" type="number" inputmode="decimal" data-tasarim-alan="menuKarti.ucret" data-hesap="1" value="'+esc(ts.menuKarti.ucret)+'" placeholder="Ücret"><label class="onay" style="margin-top:14px"><input type="checkbox" data-tasarim="ayna" '+(ts.ayna.secili?"checked":"")+'> Ayna tasarımı</label><input class="gir" data-tasarim-alan="ayna.aciklama" value="'+esc(ts.ayna.aciklama)+'" placeholder="Model / not" style="margin-bottom:8px"><input class="gir" type="number" inputmode="decimal" data-tasarim-alan="ayna.ucret" data-hesap="1" value="'+esc(ts.ayna.ucret)+'" placeholder="Ücret">';
-  const odeme='<div id="odemeListe"></div><div class="ekle-satir"><select class="gir" id="odemeEtiket"><option>Kapora</option><option>Ara ödeme</option><option>Son ödeme</option></select><input class="gir" type="number" inputmode="decimal" id="odemeTutar" placeholder="Tutar"><input class="gir" type="date" id="odemeTarih" value="'+bugunISO()+'"><button type="button" class="dg ana" id="odemeEkle">Ekle</button></div><p class="ipucu">Tahsilat hangi tarihte alındıysa o ayın rapor gelirine yazılır.</p>';
+  const odeme='<div id="odemeListe"></div><div class="bilgi-kutu"><b>Yeni tahsilatlar artık organizasyon detayından eklenir.</b><br>Kaydı kaydedin; ardından detay ekranındaki “Profesyonel tahsilat” bölümünden tarih, yöntem (Nakit / Havale / POS) ve açıklamayla ödeme girin.</div>';
   const gider='<div class="alt-kart"><div class="hesap-satir"><span>Garson temel gideri <small id="garsonGiderDetay">('+h.garson+' × '+para(h.garsonBirim)+')</small></span><span class="tutar" id="garsonGiderToplam">'+para(h.garsonTemel)+'</span></div><div class="alan" style="margin-top:12px"><label class="et">Garson yol / ek ücret açıklaması</label><input class="gir" data-personel="garsonEkNot" value="'+esc(t.personel.garsonEkNot)+'" placeholder="Örn. servis aracı, taksi, fazla mesai"></div><div class="alan"><label class="et">Garson yol / ek ücret tutarı</label><input class="gir" type="number" inputmode="decimal" data-personel="garsonEkUcret" data-hesap="1" value="'+esc(t.personel.garsonEkUcret)+'" placeholder="0"></div><div class="alan ciftli"><div><label class="et">DJ gideri</label><input class="gir" type="number" inputmode="decimal" data-personel="dj" data-hesap="1" value="'+esc(t.personel.dj)+'" placeholder="0"></div><div><label class="et">Mutfak personeli gideri</label><input class="gir" type="number" inputmode="decimal" data-personel="mutfak" data-hesap="1" value="'+esc(t.personel.mutfak)+'" placeholder="0"></div></div><div class="hesap-satir sonuc"><span>Personel toplamı</span><span class="tutar serif-tutar" id="personelToplam">'+para(h.personelToplam)+'</span></div></div>'
     +'<h4 style="font-size:12px;color:var(--soluk);margin:16px 0 6px">Diğer organizasyon giderleri</h4><div id="giderListe"></div><div class="ekle-satir"><select class="gir" id="giderKalem">'+ORG_GIDER_KALEMLERI.map(k=>'<option>'+esc(k)+'</option>').join("")+'</select><input class="gir" type="number" inputmode="decimal" id="giderTutar" placeholder="Tutar"><input class="gir" type="date" id="giderTarih" value="'+esc(t.tarih||bugunISO())+'"><button type="button" class="dg ana" id="giderEkle">Ekle</button></div><p class="ipucu">Kira, aidat ve stopaj Giderler sekmesinde aylık sabit olarak tutulur.</p>';
   return '<div class="ekran"><button class="geri" data-geri="1">‹ Vazgeç</button><h2 class="serif" style="font-size:24px;margin:0 0 16px">'+(D.organizasyonlar.some(x=>x.id===t.id)?"Kaydı düzenle":"Yeni organizasyon")+'</h2><p class="hata-yazi" id="formHata" style="display:none"></p>'
@@ -1301,6 +1343,201 @@ async function uygulamayiYukle(){
   await djDurumlariYukle();
   ciz(); await bulutDinle();
 }
+
+
+/* ================= v9 profesyonel arayüz + ödeme/checklist ================= */
+let v9Payments=[];
+let v9ChecklistHarita={};
+
+const v8GirisHTML=girisHTML;
+girisHTML=function(hata){
+  if(!bulutHazir()) return v8GirisHTML(hata);
+  return '<div class="giris-kabuk"><form class="giris-kart" id="girisForm"><div class="giris-brand"><img src="logo-muchmore.jpg" alt="Much & More"><h1 class="serif">Much &amp; More</h1><p>EVENT HALL · OPERASYON PANELİ</p></div><p class="giris-alt">Organizasyon, tahsilat, personel ve raporlama tek yerde.</p><div class="alan"><label class="et">E-posta</label><input class="gir" id="girisEmail" type="email" autocomplete="username" required placeholder="ornek@eposta.com"></div><div class="alan"><label class="et">Şifre</label><input class="gir" id="girisSifre" type="password" autocomplete="current-password" required placeholder="••••••••"></div><button class="dg ana genis" type="submit">Güvenli giriş</button><div class="giris-hata" id="girisHata"'+(hata?' style="display:block"':'')+'>'+esc(hata||"")+'</div></form></div>';
+};
+
+const v8OrgNormalize=orgNormalize;
+orgNormalize=function(o,veri){
+  const n=v8OrgNormalize(o,veri);
+  if(n.personel.dj==="" || n.personel.dj==null) n.personel.dj=sayi(veri&&veri.ayarlar&&veri.ayarlar.djUcreti)||7000;
+  if(n.personel.mutfak==="" || n.personel.mutfak==null) n.personel.mutfak=sayi(veri&&veri.ayarlar&&veri.ayarlar.asciUcreti)||6000;
+  return n;
+};
+const v8VeriDuzenle=veriDuzenle;
+veriDuzenle=function(v){
+  const out=v8VeriDuzenle(v);
+  out.ayarlar.garsonBasi=sayi(out.ayarlar.garsonBasi)||15;
+  out.ayarlar.djUcreti=sayi(out.ayarlar.djUcreti)||7000;
+  out.ayarlar.asciUcreti=sayi(out.ayarlar.asciUcreti)||6000;
+  return out;
+};
+const v8YeniOrg=yeniOrg;
+yeniOrg=function(tarih){
+  const o=v8YeniOrg(tarih);
+  o.personel.dj=sayi(D&&D.ayarlar&&D.ayarlar.djUcreti)||7000;
+  o.personel.mutfak=sayi(D&&D.ayarlar&&D.ayarlar.asciUcreti)||6000;
+  return o;
+};
+
+async function v9EkVeriYukle(){
+  const [p,c]=await Promise.all([
+    sb.from("mm_payments").select("id,org_id,legacy_id,payment_date,amount,method,label,note,created_by_email,created_at").eq("workspace_id",workspaceId()).order("payment_date",{ascending:true}),
+    sb.from("mm_org_checklist").select("*").eq("workspace_id",workspaceId())
+  ]);
+  if(p.error) throw p.error; if(c.error) throw c.error;
+  v9Payments=p.data||[]; v9ChecklistHarita={}; (c.data||[]).forEach(x=>v9ChecklistHarita[x.org_id]=x);
+}
+function v9OrgPayments(orgId){ return (v9Payments||[]).filter(x=>x.org_id===orgId).sort((a,b)=>String(a.payment_date||"").localeCompare(String(b.payment_date||""))||String(a.created_at||"").localeCompare(String(b.created_at||""))); }
+function v9Checklist(orgId){ return v9ChecklistHarita[orgId]||{workspace_id:workspaceId(),org_id:orgId,dj_contact_ok:false,menu_ok:false,person_count_ok:false,decor_ok:false,chief_waiter_ok:false,chef_ok:false,payment_ok:false}; }
+function v9ChecklistPct(c){ const keys=["dj_contact_ok","menu_ok","person_count_ok","decor_ok","chief_waiter_ok","chef_ok","payment_ok"]; return Math.round(keys.filter(k=>!!c[k]).length/keys.length*100); }
+
+personelVeriYukle=async function(){
+  const {data,error}=await sb.from("mm_staff_schedule").select("workspace_id,org_id,event_date,event_time,person_count,event_type,status,updated_at,menu_type,waiter_count").eq("workspace_id",workspaceId()).order("event_date",{ascending:true}).order("event_time",{ascending:true});
+  if(error) throw error; personelProgram=data||[]; if(aktifRol==="dj") await djDurumlariYukle(); else djDurumHarita={};
+};
+personelEkrani=function(){
+  const ay=personelAy, liste=(personelProgram||[]).filter(x=>String(x.event_date||"").slice(0,7)===ay).sort((a,b)=>String(a.event_date||"").localeCompare(String(b.event_date||""))||String(a.event_time||"").localeCompare(String(b.event_time||"")));
+  const ad=aktifProfil&&aktifProfil.display_name?aktifProfil.display_name:rolEtiket(aktifRol);
+  const kartlar=liste.length?liste.map(x=>{ const iptal=x.status==="iptal", dj=djDurumHarita[x.org_id]||{};
+    const tel=aktifRol==="dj"&&dj.phone?'<a class="personel-telefon" href="tel:'+esc(String(dj.phone).replace(/\\s/g,""))+'">☎ '+esc(dj.phone)+'</a>':'';
+    const menu=aktifRol==="asci"?'<div class="personel-menu-box"><b>Hazırlanacak menü</b><span>'+esc(x.menu_type||"Menü bilgisi girilmemiş")+'</span></div>':'';
+    const waiter=aktifRol==="sef_garson"?'<span class="personel-waiter">'+esc(x.waiter_count||0)+' garson · '+esc(x.person_count||0)+' kişi</span>':'';
+    const gorusme=aktifRol==="dj"&&!iptal?'<div class="dj-gorusme"><b style="font-size:12px">Görüşme sağlandı mı?</b><div class="dj-gorusme-satir"><button class="dj-sec '+(dj.contacted?'aktif':'')+'" data-dj-gorusme="'+esc(x.org_id)+'" data-dj-deger="1">Evet</button><button class="dj-sec hayir '+(!dj.contacted&&dj.contacted_at?'aktif':'')+'" data-dj-gorusme="'+esc(x.org_id)+'" data-dj-deger="0">Hayır</button></div>'+(dj.contacted_at?'<div class="mini-alt" style="margin-top:6px">Son işaretleme: '+esc(tarihSaatYaz(dj.contacted_at))+'</div>':'<div class="mini-alt" style="margin-top:6px">Henüz işaretlenmedi.</div>')+'</div>':'';
+    return '<div class="personel-kart '+(iptal?'iptal':'')+'"><div class="personel-kart-ust"><div><div class="personel-tarih">'+tarihYaz(x.event_date)+(x.event_time?' · '+esc(x.event_time):'')+'</div><div class="personel-meta">'+esc(x.event_type||"Organizasyon")+(iptal?' · İPTAL EDİLDİ':'')+'</div>'+tel+waiter+'</div><div class="personel-kisi">'+esc(x.person_count||0)+'<small>kişi</small></div></div>'+menu+gorusme+'</div>';
+  }).join(""):'<div class="kart"><p class="bos" style="margin:0">Bu ay için organizasyon görünmüyor.</p></div>';
+  return '<div class="ekran"><div style="display:flex;align-items:center;gap:10px;margin:6px 0 10px"><img src="logo-muchmore.jpg" style="width:50px;height:50px;border-radius:50%;object-fit:cover"><div><h2 class="serif personel-baslik" style="margin:0">Personel Programı</h2><span class="personel-rozet" style="margin-left:0">'+esc(rolEtiket(aktifRol))+'</span></div></div><p class="personel-alt">'+esc(ad)+' · Size yalnızca görev için gerekli bilgiler gösterilir.</p><div class="ay-cubugu"><button class="yuvarlak" data-personel-ay="-1">‹</button><h3 class="ay-adi serif" style="font-size:22px">'+ayAdi(ay)+'</h3><button class="yuvarlak" data-personel-ay="1">›</button></div>'+kartlar+'</div>';
+};
+
+const v8AylikRapor=aylikRapor;
+aylikRapor=function(anahtar){
+  const r=v8AylikRapor(anahtar);
+  r.gelirler.forEach(g=>{ const o=D.organizasyonlar.find(x=>x.id===g.orgId); if(!o) return; const p=(o.odemeler||[]).find(x=>String(x.tarih||"")===String(g.tarih||"") && sayi(x.tutar)===sayi(g.tutar) && String(x.etiket||"Ödeme")===String(g.kalem||"Ödeme")); g.method=p&&p.method?p.method:"Belirtilmedi"; g.note=p&&p.note?p.note:""; });
+  r.sahsiGider=r.giderler.filter(g=>String(g.kalem||"").startsWith("Şahsi Harcama")).reduce((t,x)=>t+sayi(x.tutar),0);
+  r.isletmeGider=r.toplamGider-r.sahsiGider;
+  r.faaliyetNet=r.toplamGelir-r.isletmeGider;
+  r.kasaNet=r.toplamGelir-r.toplamGider;
+  return r;
+};
+
+function panelEkrani(){
+  const ay=ayAnahtar(bugunISO()), r=aylikRapor(ay), bug=bugunISO();
+  const aktif=D.organizasyonlar.filter(o=>o.durum!=="iptal"), gelecek=aktif.filter(o=>{const g=gunFarki(o.tarih,bug);return g!=null&&g>=0&&g<=30;}).sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const yedi=gelecek.filter(o=>gunFarki(o.tarih,bug)<=7), alacak=aktif.reduce((t,o)=>t+Math.max(0,hesapla(o).kalan),0);
+  const eksikler=gelecek.map(o=>({o,c:v9Checklist(o.id),pct:v9ChecklistPct(v9Checklist(o.id))})).filter(x=>x.pct<100).sort((a,b)=>a.pct-b.pct||a.o.tarih.localeCompare(b.o.tarih));
+  const today=gelecek.filter(o=>o.tarih===bug);
+  return '<div class="ekran"><section class="dashboard-hero"><div class="dash-eyebrow">MUCH & MORE · OPERASYON MERKEZİ</div><div class="dash-title">'+ayAdi(ay)+'</div><p class="dash-sub">Bugün '+today.length+' organizasyon · Önümüzdeki 30 günde '+gelecek.length+' iş</p></section>'
+    +'<div class="dash-kpi"><div class="kpi"><small>Bu ay tahsilat</small><b class="poz">'+para(r.toplamGelir)+'</b></div><div class="kpi"><small>Faaliyet neti</small><b class="'+(r.faaliyetNet>=0?'poz':'neg')+'">'+para(r.faaliyetNet)+'</b></div><div class="kpi"><small>Şahsi harcama</small><b>'+para(r.sahsiGider)+'</b></div><div class="kpi"><small>Toplam açık alacak</small><b>'+para(alacak)+'</b></div></div>'
+    +'<div class="dash-actions"><button data-sekme="takvim"><b>'+yedi.length+'</b>7 günlük iş</button><button data-sekme="isler"><b>'+aktif.length+'</b>aktif kayıt</button><button data-sekme="rapor"><b>'+r.organizasyonlar.length+'</b>aylık iş</button></div>'
+    +'<h3 class="bolum-baslik">Yaklaşan işler</h3><div class="kart">'+(gelecek.length?gelecek.slice(0,6).map(o=>{const h=hesapla(o),g=gunFarki(o.tarih,bug);return '<div class="task-row"><span class="task-dot '+(g<=3?'acil':'iyi')+'"></span><div class="task-main"><b>'+esc(o.musteri||"İsimsiz")+'</b><span>'+tarihKisa(o.tarih)+' · '+esc(o.tur)+' · '+esc(o.kisiSayisi||0)+' kişi · '+h.garson+' garson</span></div><div class="task-value">'+(h.kalan>0?para(h.kalan):'Tamam')+'</div></div>';}).join(''):'<p class="bos" style="margin:0">Önümüzdeki 30 günde aktif iş yok.</p>')+'</div>'
+    +'<h3 class="bolum-baslik">Operasyon kontrolü</h3><div class="kart">'+(eksikler.length?eksikler.slice(0,6).map(x=>'<button class="satir" style="box-shadow:none;border:0;border-bottom:1px solid var(--cizgi);border-radius:0;margin:0" data-org="'+esc(x.o.id)+'"><span class="satir-ic" style="padding:9px 0"><span class="satir-orta"><span class="satir-ad">'+esc(x.o.musteri)+'</span><span class="satir-alt">'+tarihKisa(x.o.tarih)+' · Kontrol listesi %'+x.pct+'</span><span class="prog" style="margin-top:6px"><i style="width:'+x.pct+'%"></i></span></span></span></button>').join(''):'<p class="bos" style="margin:0">Yaklaşan işlerin kontrol listeleri tamam.</p>')+'</div></div>';
+}
+
+sekmeleriCiz=function(){
+  const liste=[["panel","Panel"],["takvim","Takvim"],["isler","İşler"],["gider","Giderler"],["rapor","Rapor"],["fiyat","Ayarlar"],["gecmis","Geçmiş"]];
+  const aktif=(ekran==="detay"||ekran==="form")?"takvim":ekran;
+  el("sekmeler").innerHTML=liste.map(x=>'<button class="sekme '+(aktif===x[0]?"aktif":"")+'" data-sekme="'+x[0]+'">'+sekmeIkon(x[0])+x[1]+'</button>').join("");
+};
+const v8SekmeIkon=sekmeIkon;
+sekmeIkon=function(ad){ if(ad==="panel") return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>'; return v8SekmeIkon(ad); };
+
+const v8DetayEkrani=detayEkrani;
+detayEkrani=function(){
+  const o=D.organizasyonlar.find(x=>x.id===seciliOrg); if(!o) return v8DetayEkrani();
+  let base=v8DetayEkrani(), pays=v9OrgPayments(o.id), c=v9Checklist(o.id), pct=v9ChecklistPct(c);
+  const paymentRows=pays.length?pays.map(p=>'<div class="hesap-satir kucuk"><span>'+tarihKisa(p.payment_date)+' · '+esc(p.label||"Ödeme")+' <span class="v9-method">'+esc(p.method||"Belirtilmedi")+'</span>'+(p.note?'<br><span style="font-size:10.5px;color:var(--soluk)">'+esc(p.note)+'</span>':'')+'</span><span class="tutar">'+para(p.amount)+'</span></div>').join(''):'<p class="bos" style="margin:0 0 10px">Tahsilat kaydı yok.</p>';
+  const payCard='<h3 class="bolum-baslik">Profesyonel tahsilat</h3><div class="kart v9-payment"><div class="check-head"><b>Tahsilat geçmişi</b><span>'+pays.length+' hareket</span></div>'+paymentRows+'<div class="alan" style="margin-top:12px"><label class="et">Yeni tahsilat</label><div class="v9-form-grid"><input class="gir" type="number" inputmode="decimal" id="v9OdemeTutar" placeholder="Tutar"><input class="gir" type="date" id="v9OdemeTarih" value="'+bugunISO()+'"><select class="gir" id="v9OdemeYontem"><option>Nakit</option><option>Havale</option><option>POS</option><option>Diğer</option><option>Belirtilmedi</option></select><input class="gir" id="v9OdemeEtiket" value="Ara ödeme" placeholder="Ödeme adı"></div><textarea class="gir" rows="2" id="v9OdemeNot" style="margin-top:8px" placeholder="Not / dekont açıklaması (opsiyonel)"></textarea></div><button class="dg ana genis" id="v9OdemeEkle" data-org="'+esc(o.id)+'">Tahsilatı kaydet</button><p class="ipucu">Gelir, seçtiğiniz tahsilat tarihinin ayına otomatik yazılır.</p></div>';
+  const items=[['dj_contact_ok','DJ görüşmesi'],['menu_ok','Menü kesinleşti'],['person_count_ok','Kişi sayısı kesinleşti'],['decor_ok','Dekorasyon kesinleşti'],['chief_waiter_ok','Şef garson bilgilendirildi'],['chef_ok','Aşçı bilgilendirildi'],['payment_ok','Kalan ödeme tamamlandı']];
+  const checkCard='<h3 class="bolum-baslik">Organizasyon kontrol listesi</h3><div class="kart"><div class="check-head"><b>Hazırlık durumu</b><span>%'+pct+' tamamlandı</span></div><div class="prog" style="margin-bottom:11px"><i style="width:'+pct+'%"></i></div><div class="check-grid">'+items.map(it=>'<label class="check-item '+(c[it[0]]?'done':'')+'"><input type="checkbox" data-v9-check="'+it[0]+'" data-org="'+esc(o.id)+'" '+(c[it[0]]?'checked':'')+'><span>'+it[1]+'</span></label>').join('')+'</div></div>';
+  const needle='<h3 class="bolum-baslik">DJ görüşme takibi</h3>';
+  if(base.includes(needle)) base=base.replace(needle,payCard+checkCard+needle); else base=base.replace('<div class="dg-satir">',payCard+checkCard+'<div class="dg-satir">');
+  return base;
+};
+
+const v8GiderEkrani=giderEkrani;
+giderEkrani=function(){
+  const sabit=D.sabitGiderler[giderAy]||[], normal=sabit.filter(x=>!x.sahsi), sahsi=sabit.filter(x=>!!x.sahsi), r=aylikRapor(giderAy), orgGider=r.giderler.filter(x=>x.tur==="organizasyon"||x.tur==="personel"), digerler=(D.digerGiderler||[]).filter(g=>ayAnahtar(g.tarih)===giderAy);
+  const rows=(a)=>a.length?'<div class="mini-liste">'+a.map(x=>'<div class="mini"><div class="mini-orta">'+esc(x.kalem)+'</div><span class="tutar" style="font-weight:600">'+para(x.tutar)+'</span><button class="sil" data-sabit-sil="'+x.id+'">×</button></div>').join('')+'</div>':'<p class="bos" style="margin:0">Kayıt yok.</p>';
+  return '<div class="ekran"><div class="ay-cubugu"><button class="yuvarlak" data-gider-ay="-1">‹</button><h2 class="ay-adi serif" style="font-size:22px">'+ayAdi(giderAy)+'</h2><button class="yuvarlak" data-gider-ay="1">›</button></div>'
+    +'<h3 class="bolum-baslik">İşletme sabit giderleri</h3><div class="kart">'+rows(normal)+'<div class="ekle-satir"><input class="gir" id="sabitKalem" list="sabitListe" placeholder="Kalem"><datalist id="sabitListe">'+SABIT_GIDER_KALEMLERI.map(k=>'<option value="'+esc(k)+'">').join('')+'</datalist><input class="gir" type="number" inputmode="decimal" id="sabitTutar" placeholder="Tutar"><button class="dg ana" id="sabitEkle">Ekle</button></div><button class="dg ufak genis" id="oncekiAydanKopyala" style="margin-top:10px">Önceki aydan kopyala</button></div>'
+    +'<h3 class="bolum-baslik">Şahsi harcamalar</h3><div class="kart sahsi-kart"><span class="sahsi-rozet">İŞLETME KÂRINDAN AYRI RAPORLANIR</span>'+rows(sahsi)+'<div class="ekle-satir"><input class="gir" id="sahsiKalem" placeholder="Örn. Oktay ev kira"><input class="gir" type="number" inputmode="decimal" id="sahsiTutar" placeholder="Tutar"><button class="dg ana" id="sahsiEkle">Ekle</button></div><div class="hesap-satir sonuc"><span>Şahsi toplam</span><span class="tutar">'+para(r.sahsiGider)+'</span></div></div>'
+    +'<h3 class="bolum-baslik">Genel giderler</h3><div class="kart">'+(digerler.length?'<div class="mini-liste">'+digerler.map(g=>'<div class="mini"><div class="mini-orta"><div>'+esc(g.kalem)+'</div><div class="mini-alt">'+tarihYaz(g.tarih)+(g.aciklama?' · '+esc(g.aciklama):'')+'</div></div><span class="tutar" style="font-weight:600">'+para(g.tutar)+'</span><button class="sil" data-diger-sil="'+g.id+'">×</button></div>').join('')+'</div>':'<p class="bos" style="margin:0">Kayıt yok.</p>')+'<div class="ekle-satir"><input class="gir" id="digerKalem" list="digerListe" placeholder="Kalem"><datalist id="digerListe">'+ORG_GIDER_KALEMLERI.map(k=>'<option value="'+esc(k)+'">').join('')+'</datalist><input class="gir" id="digerAciklama" placeholder="Açıklama"><input class="gir" type="number" inputmode="decimal" id="digerTutar" placeholder="Tutar"><input class="gir" type="date" id="digerTarih" value="'+giderAy+'-01"><button class="dg ana" id="digerEkle">Ekle</button></div></div>'
+    +'<h3 class="bolum-baslik">Organizasyon giderleri</h3><div class="kart">'+(orgGider.length?orgGider.map(g=>'<div class="hesap-satir kucuk"><span>'+esc(g.ad)+' · '+esc(g.kalem)+' · '+tarihKisa(g.tarih)+'</span><span class="tutar">'+para(g.tutar)+'</span></div>').join(''):'<p class="bos" style="margin:0">Kayıt yok.</p>')+'</div><div class="rapor-ayrim"><div class="kart"><small>İşletme gideri</small><b>'+para(r.isletmeGider)+'</b></div><div class="kart"><small>Şahsi gider</small><b>'+para(r.sahsiGider)+'</b></div></div></div>';
+};
+
+raporEkrani=function(){
+  const r=aylikRapor(raporAy); const ozet=(liste)=>liste.length?liste.map(x=>'<div class="hesap-satir kucuk"><span>'+esc(x.kalem)+'</span><span class="tutar">'+para(x.tutar)+'</span></div>').join(''):'<p class="bos" style="margin:0">Kayıt yok.</p>';
+  return '<div class="ekran"><div class="ay-cubugu"><button class="yuvarlak" data-rapor-ay="-1">‹</button><h2 class="ay-adi serif" style="font-size:22px">'+ayAdi(raporAy)+'</h2><button class="yuvarlak" data-rapor-ay="1">›</button></div>'
+    +'<div class="ozet-kutular rapor-kutular"><div class="ozet-kutu"><b class="gelir-renk">'+para(r.toplamGelir)+'</b><small>tahsilat</small></div><div class="ozet-kutu"><b class="gider-renk">'+para(r.isletmeGider)+'</b><small>işletme gideri</small></div><div class="ozet-kutu"><b>'+para(r.sahsiGider)+'</b><small>şahsi gider</small></div><div class="ozet-kutu"><b>'+para(r.orgKalan)+'</b><small>kalan alacak</small></div></div>'
+    +'<div class="rapor-ayrim"><div class="kart" style="background:#111820;color:#fff"><small style="color:#AAB4BF">Faaliyet neti</small><b style="color:'+(r.faaliyetNet>=0?'#9AD0AC':'#F1A3A3')+'">'+para(r.faaliyetNet)+'</b></div><div class="kart" style="background:#29323C;color:#fff"><small style="color:#BAC2CA">Şahsi sonrası kasa neti</small><b>'+para(r.kasaNet)+'</b></div></div>'
+    +'<div class="rapor-aciklama">Faaliyet neti, şahsi harcamaları işletme performansından ayırır. Tahsilatlar gerçek <b>ödeme tarihine</b> göre raporlanır.</div>'
+    +'<h3 class="bolum-baslik">Ayın organizasyonları ('+r.organizasyonlar.length+')</h3><div class="kart">'+(r.organizasyonlar.length?r.organizasyonlar.map(o=>'<div class="rapor-org"><div><b>'+esc(o.ad)+(o.durum==="iptal"?' <span style="color:var(--kirmizi);font-size:10px">İPTAL</span>':'')+'</b><span>'+tarihKisa(o.tarih)+' · '+esc(o.tur)+(o.kisi?' · '+o.kisi+' kişi':'')+'</span></div><div><b>'+(o.durum==="iptal"?'İptal':para(o.toplam))+'</b><span>Alınan '+para(o.alinan)+(o.iade?' · İade '+para(o.iade):'')+' · '+(o.durum==="iptal"?'Net '+para(o.netTahsilat):'Kalan '+para(o.kalan))+'</span></div></div>').join(''):'<p class="bos" style="margin:0">Bu ay organizasyon yok.</p>')+'</div>'
+    +'<h3 class="bolum-baslik">Tahsilatlar ('+r.gelirler.length+')</h3><div class="kart">'+(r.gelirler.length?r.gelirler.map(g=>'<div class="hesap-satir"><span>'+tarihKisa(g.tarih)+' · '+esc(g.ad)+'<br><span style="font-size:11.5px;color:var(--soluk)">'+esc(g.kalem)+' · '+esc(g.method||"Belirtilmedi")+'</span></span><span class="tutar">'+para(g.tutar)+'</span></div>').join(''):'<p class="bos" style="margin:0">Bu ay tahsilat yok.</p>')+'</div>'
+    +'<h3 class="bolum-baslik">Giderler ('+r.giderler.length+')</h3><div class="kart">'+(r.giderler.length?r.giderler.map(g=>'<div class="hesap-satir"><span>'+tarihKisa(g.tarih)+' · '+esc(g.ad)+'<br><span style="font-size:11.5px;color:var(--soluk)">'+esc(g.kalem)+'</span></span><span class="tutar">'+para(g.tutar)+'</span></div>').join(''):'<p class="bos" style="margin:0">Bu ay gider yok.</p>')+'</div>'
+    +'<div class="rapor-iki"><div class="kart"><span class="kart-etiket">Gelir dağılımı</span>'+ozet(r.gelirOzet)+'</div><div class="kart"><span class="kart-etiket">Gider dağılımı</span>'+ozet(r.giderOzet)+'</div></div><div class="dg-satir"><button class="dg ana" id="pdfDugme">PDF Raporu</button><button class="dg" id="excelDugme">Excel (.xls)</button></div></div>';
+};
+
+const v8FiyatEkrani=fiyatEkrani;
+fiyatEkrani=function(){ let html=v8FiyatEkrani(); html=html.replace('<div class="alan"><label class="et">Fatura oranı (%)</label>', '<div class="alan ciftli"><div><label class="et">DJ varsayılan ücreti</label><input class="gir" type="number" id="aDjUcret" value="'+esc(D.ayarlar.djUcreti||7000)+'"></div><div><label class="et">Aşçı varsayılan ücreti</label><input class="gir" type="number" id="aAsciUcret" value="'+esc(D.ayarlar.asciUcreti||6000)+'"></div></div><div class="alan"><label class="et">Fatura oranı (%)</label>'); return html; };
+
+const v8Ciz=ciz;
+ciz=function(){ if(ekran==="panel"){el("uygulama").innerHTML=panelEkrani();senkronDurum(D.organizasyonlar.length+" kayıt · senkron","ok");sekmeleriCiz();window.scrollTo(0,0);return;} v8Ciz(); };
+
+const v8BulutDinle=bulutDinle;
+bulutDinle=async function(){
+  if(kanal) try{await sb.removeChannel(kanal);}catch(e){}
+  kanal=sb.channel("much-more-sync-v9-"+workspaceId())
+   .on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state",filter:"id=eq."+workspaceId()},payload=>{ if(!payload.new||!payload.new.data)return; const gelen=veriDuzenle(payload.new.data); if(jsonEsit(gelen,sonSenkron))return; sonSenkron=klon(gelen);yerelYaz(gelen);D=gelen;if(ekran!=="form"){uzakUygulanirken=true;try{ciz();senkronDurum("Diğer cihazdan güncellendi","ok");}finally{uzakUygulanirken=false;}}else{senkronDurum("Bulutta yeni değişiklik var","ok");serit("Diğer cihazdan yeni değişiklik geldi. Kaydettiğinizde birleştirilecek.");}})
+   .on("postgres_changes",{event:"INSERT",schema:"public",table:"audit_log",filter:"workspace_id=eq."+workspaceId()},payload=>{if(!payload.new)return;auditKayitlari=[payload.new,...auditKayitlari.filter(x=>x.id!==payload.new.id)].slice(0,300);if(ekran==="gecmis")ciz();})
+   .on("postgres_changes",{event:"*",schema:"public",table:"mm_payments",filter:"workspace_id=eq."+workspaceId()},async()=>{try{await v9EkVeriYukle();if(ekran==="detay"||ekran==="rapor"||ekran==="panel")ciz();}catch(e){console.error(e);}})
+   .on("postgres_changes",{event:"*",schema:"public",table:"mm_org_checklist",filter:"workspace_id=eq."+workspaceId()},async()=>{try{await v9EkVeriYukle();if(ekran==="detay"||ekran==="panel")ciz();}catch(e){console.error(e);}})
+   .on("postgres_changes",{event:"UPDATE",schema:"public",table:"mm_dj_private",filter:"workspace_id=eq."+workspaceId()},payload=>{if(payload.new&&payload.new.org_id){djDurumHarita[payload.new.org_id]=payload.new;if(ekran==="detay")ciz();}}).subscribe();
+};
+
+uygulamayiYukle=async function(){
+  uygulamaGoster();
+  try{const profil=await rolYukle();if(!profil){girisGoster("Bu hesaba Much&More rolü tanımlanmamış.");return;}}catch(e){console.error(e);girisGoster("Rol bilgisi okunamadı.");return;}
+  if(aktifRol!=="admin"){await personelUygulamayiYukle();return;}
+  el("sekmeler").style.display="flex"; if(el("oturumKim")) el("oturumKim").textContent=(aktifProfil&&aktifProfil.display_name?aktifProfil.display_name:(aktifKullanici.email||"Yetkili"))+" · Yönetici";
+  let veri=null; try{veri=await Depo.yukle();}catch(e){console.error(e);girisGoster("Veritabanına bağlanılamadı: "+(e.message||e));return;}
+  D=veriDuzenle(veri); const ok=await kaydet(); if(!ok){girisGoster("Veritabanı hazır değil veya bu hesap yönetici değil.");return;}
+  try{await Promise.all([djDurumlariYukle(),v9EkVeriYukle()]);}catch(e){console.error(e);serit("Profesyonel modüllerden biri yüklenemedi.","hata");}
+  ekran="panel"; ciz(); await bulutDinle();
+};
+
+document.addEventListener("click",async(e)=>{
+  const pay=e.target.closest&&e.target.closest("#v9OdemeEkle");
+  if(pay){ const orgId=pay.dataset.org, tutar=sayi(el("v9OdemeTutar").value), tarih=el("v9OdemeTarih").value||bugunISO(), method=el("v9OdemeYontem").value, label=(el("v9OdemeEtiket").value||"Ödeme").trim(), note=(el("v9OdemeNot").value||"").trim(); if(!tutar){serit("Tahsilat tutarı girin.","hata");return;} pay.disabled=true;pay.textContent="Kaydediliyor…"; const {data,error}=await sb.rpc("mm_add_payment",{p_org_id:orgId,p_payment_date:tarih,p_amount:tutar,p_method:method,p_label:label,p_note:note||null}); if(error){console.error(error);pay.disabled=false;pay.textContent="Tahsilatı kaydet";serit("Tahsilat kaydedilemedi: "+error.message,"hata");return;} try{D=veriDuzenle(await Depo.yukle());await v9EkVeriYukle();}catch(_e){} ciz();serit(para(tutar)+" tahsilat kaydedildi.");return; }
+  const chk=e.target.closest&&e.target.closest("[data-v9-check]");
+  if(chk){ const orgId=chk.dataset.org, key=chk.dataset.v9Check, val=!!chk.checked; const patch={workspace_id:workspaceId(),org_id:orgId};patch[key]=val;patch.updated_by=aktifKullanici.id;patch.updated_by_email=aktifKullanici.email||null; const {data,error}=await sb.from("mm_org_checklist").upsert(patch,{onConflict:"workspace_id,org_id"}).select().single(); if(error){console.error(error);chk.checked=!val;serit("Kontrol listesi güncellenemedi.","hata");return;} v9ChecklistHarita[orgId]=data; await auditYaz(auditKaydi("organizasyon_kontrol_guncellendi","organizasyon",orgId,(D.organizasyonlar.find(x=>x.id===orgId)||{}).musteri||"Organizasyon",{aciklama:chk.parentElement.innerText.trim()+": "+(val?"Tamam":"Bekliyor")})); ciz();return; }
+  const sah=e.target.closest&&e.target.closest("#sahsiEkle");
+  if(sah){const kalem=(el("sahsiKalem").value||"").trim(),tutar=sayi(el("sahsiTutar").value);if(!kalem||!tutar){serit("Şahsi harcama adı ve tutarı gerekli.","hata");return;}D.sabitGiderler[giderAy]=D.sabitGiderler[giderAy]||[];const x={id:yeniId(),kalem:"Şahsi Harcama · "+kalem,tutar,sahsi:true};D.sabitGiderler[giderAy].push(x);const ok=await kaydet();if(ok)await auditYaz(auditKaydi("sahsi_harcama_eklendi","sabit_gider",x.id,x.kalem,{tutar}));ciz();serit("Şahsi harcama eklendi.");return;}
+  const ayar=e.target.closest&&e.target.closest("#ayarKaydet");
+  if(ayar && el("aDjUcret")){D.ayarlar.djUcreti=sayi(el("aDjUcret").value)||7000;D.ayarlar.asciUcreti=sayi(el("aAsciUcret").value)||6000;}
+});
+
+
+/* ---- v9 son profesyonel rötuşlar ---- */
+odemeListeCiz=function(){ const k=el("odemeListe"); if(!k||!taslak)return; const arr=taslak.odemeler||[]; k.innerHTML=arr.length?'<div class="mini-liste">'+arr.map(p=>'<div class="mini"><div class="mini-orta"><div>'+esc(p.etiket||"Ödeme")+(p.method?' <span class="v9-method">'+esc(p.method)+'</span>':'')+'</div><div class="mini-alt">'+tarihYaz(p.tarih)+(p.note?' · '+esc(p.note):'')+'</div></div><span class="tutar" style="font-weight:600">'+para(p.tutar)+'</span></div>').join('')+'</div>':'<p class="bos" style="margin:0">Henüz ödeme yok.</p>'; };
+
+const v8AuditBaslik=auditBaslik;
+auditBaslik=function(a){ const m={organizasyon_kontrol_guncellendi:"Organizasyon kontrolü güncellendi",sahsi_harcama_eklendi:"Şahsi harcama eklendi"}; return m[a]||v8AuditBaslik(a); };
+
+pdfYazdir=function(){
+  const r=aylikRapor(raporAy), satir=(a)=>'<tr><td>'+esc(tarihYaz(a.tarih))+'</td><td>'+esc(a.ad)+'</td><td>'+esc(a.kalem)+'</td><td>'+esc(a.method||'')+'</td><td class="sag">'+paraDuz(a.tutar)+' TL</td></tr>', org=(o)=>'<tr><td>'+esc(tarihYaz(o.tarih))+'</td><td>'+esc(o.ad)+'</td><td>'+esc(o.tur)+'</td><td class="sag">'+o.kisi+'</td><td class="sag">'+paraDuz(o.toplam)+' TL</td><td class="sag">'+paraDuz(o.alinan)+' TL</td><td class="sag">'+paraDuz(o.kalan)+' TL</td></tr>';
+  el("yazdirma").innerHTML='<div class="pdf-ust"><div style="display:flex;align-items:center;gap:10px"><img src="logo-muchmore.jpg" style="width:58px;height:58px;border-radius:50%;object-fit:cover"><div><p class="pdf-marka">MUCH &amp; MORE EVENT HALL</p><h1>Yönetim Raporu</h1><p>'+ayAdi(raporAy)+'</p></div></div><div class="pdf-tarih">Oluşturma: '+tarihYaz(bugunISO())+'</div></div><div class="pdf-ozet"><div><span>Tahsilat</span><b>'+para(r.toplamGelir)+'</b></div><div><span>İşletme gideri</span><b>'+para(r.isletmeGider)+'</b></div><div><span>Faaliyet neti</span><b>'+para(r.faaliyetNet)+'</b></div><div><span>Şahsi sonrası net</span><b>'+para(r.kasaNet)+'</b></div></div>'
+    +'<h2>Organizasyonlar</h2><table><tr><th>Tarih</th><th>Müşteri</th><th>Tür</th><th class="sag">Kişi</th><th class="sag">Satış</th><th class="sag">Alınan</th><th class="sag">Kalan</th></tr>'+(r.organizasyonlar.map(org).join('')||'<tr><td colspan="7">Kayıt yok</td></tr>')+'</table>'
+    +'<h2>Tahsilatlar</h2><table><tr><th>Tarih</th><th>Müşteri</th><th>Kalem</th><th>Yöntem</th><th class="sag">Tutar</th></tr>'+(r.gelirler.map(satir).join('')||'<tr><td colspan="5">Kayıt yok</td></tr>')+'<tr class="kalin"><td colspan="4">Toplam tahsilat</td><td class="sag">'+paraDuz(r.toplamGelir)+' TL</td></tr></table>'
+    +'<h2>İşletme ve şahsi giderler</h2><table><tr><th>Tarih</th><th>Kayıt</th><th>Kalem</th><th></th><th class="sag">Tutar</th></tr>'+(r.giderler.map(g=>satir(Object.assign({method:''},g))).join('')||'<tr><td colspan="5">Kayıt yok</td></tr>')+'<tr class="kalin"><td colspan="4">İşletme gideri</td><td class="sag">'+paraDuz(r.isletmeGider)+' TL</td></tr><tr class="kalin"><td colspan="4">Şahsi harcama</td><td class="sag">'+paraDuz(r.sahsiGider)+' TL</td></tr></table><div class="pdf-sonuc"><span>Faaliyet neti</span><b>'+para(r.faaliyetNet)+'</b></div><p class="pdf-dip">Much &amp; More Event Hall · Tahsilatlar gerçek ödeme tarihine göre raporlanır.</p>';
+  setTimeout(()=>window.print(),120);
+};
+
+excelIndir=function(){
+  const r=aylikRapor(raporAy), cell=(v,type)=>'<Cell><Data ss:Type="'+(type||'String')+'">'+xmlEsc(v)+'</Data></Cell>', row=(a)=>'<Row>'+a.join('')+'</Row>', bas='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">', ws=(ad,rows)=>'<Worksheet ss:Name="'+xmlEsc(ad)+'"><Table>'+rows.join('')+'</Table></Worksheet>';
+  const ozet=[row([cell('Much & More'),cell(ayAdi(raporAy))]),row([]),row([cell('Tahsilat'),cell(r.toplamGelir,'Number')]),row([cell('İşletme gideri'),cell(r.isletmeGider,'Number')]),row([cell('Şahsi harcama'),cell(r.sahsiGider,'Number')]),row([cell('Faaliyet neti'),cell(r.faaliyetNet,'Number')]),row([cell('Şahsi sonrası net'),cell(r.kasaNet,'Number')])];
+  const gelir=[row([cell('Tarih'),cell('Müşteri'),cell('Kalem'),cell('Yöntem'),cell('Not'),cell('Tutar')])];r.gelirler.forEach(g=>gelir.push(row([cell(g.tarih),cell(g.ad),cell(g.kalem),cell(g.method||'Belirtilmedi'),cell(g.note||''),cell(g.tutar,'Number')])));
+  const gider=[row([cell('Tarih'),cell('Kayıt'),cell('Kalem'),cell('Tutar')])];r.giderler.forEach(g=>gider.push(row([cell(g.tarih),cell(g.ad),cell(g.kalem),cell(g.tutar,'Number')])));
+  const orgs=[row([cell('Tarih'),cell('Müşteri'),cell('Tür'),cell('Kişi'),cell('Satış'),cell('Alınan'),cell('Kalan')])];r.organizasyonlar.forEach(o=>orgs.push(row([cell(o.tarih),cell(o.ad),cell(o.tur),cell(o.kisi,'Number'),cell(o.toplam,'Number'),cell(o.alinan,'Number'),cell(o.kalan,'Number')])));
+  dosyaIndir(bas+ws('Özet',ozet)+ws('Tahsilatlar',gelir)+ws('Giderler',gider)+ws('Organizasyonlar',orgs)+'</Workbook>','much-more-profesyonel-rapor-'+raporAy+'.xls','application/vnd.ms-excel;charset=utf-8');
+};
 
 (async function(){
   const oturum=await oturumBaslat();
