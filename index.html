@@ -264,6 +264,15 @@ textarea.gir{resize:vertical;line-height:1.45;font-size:15px}
 .oturum-satir{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px 8px;max-width:520px;margin:0 auto;color:var(--soluk);font-size:11.5px}
 .oturum-cik{border:none;background:none;padding:0;color:var(--kadife);font-weight:700;font-size:11.5px}
 
+
+/* ---- v8 personel paneli ---- */
+.personel-baslik{margin:8px 0 4px;font-size:26px}.personel-alt{margin:0 0 16px;color:var(--soluk);font-size:13px}
+.personel-rozet{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;background:#E7EEE9;color:var(--kadife);font-size:10.5px;font-weight:700;margin-left:6px}
+.personel-kart{background:var(--kart);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--golge);border-left:4px solid var(--kadife)}
+.personel-kart.iptal{border-left-color:var(--kirmizi);opacity:.82}.personel-tarih{font-family:"Bodoni Moda",Georgia,serif;font-weight:600;font-size:18px}.personel-meta{font-size:12px;color:var(--soluk);margin-top:3px}.personel-kisi{font-size:24px;font-weight:700;line-height:1}.personel-kisi small{display:block;font-size:10px;color:var(--soluk);font-weight:500;margin-top:3px}
+.personel-kart-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.personel-telefon{display:inline-flex;margin-top:10px;font-weight:700;color:var(--kadife);text-decoration:none}.dj-gorusme{margin-top:12px;padding-top:11px;border-top:1px solid var(--cizgi)}.dj-gorusme-satir{display:flex;gap:7px;margin-top:7px}.dj-sec{flex:1;border:1px solid var(--cizgi);background:var(--porselen);border-radius:9px;padding:9px;font-weight:700}.dj-sec.aktif{background:var(--kadife);border-color:var(--kadife);color:#fff}.dj-sec.hayir.aktif{background:var(--kirmizi);border-color:var(--kirmizi)}
+.dj-admin-kart{border-left:3px solid var(--pirinc)}
+
 /* ---- yazdırma ---- */
 #yazdirma{display:none}
 @media print{
@@ -347,6 +356,12 @@ let isArama = "";
 let isDurum = "tumu";
 let isTur = "tumu";
 let isAy = "";
+let aktifRol = null;
+let aktifProfil = null;
+let personelProgram = [];
+let djDurumHarita = {};
+let personelAy = ayAnahtar(bugunISO());
+let personelYenileTimer = null;
 
 function varsayilan(){
   return {
@@ -512,7 +527,8 @@ function auditBaslik(action){
     genel_gider_eklendi:"Genel gider eklendi", genel_gider_silindi:"Genel gider silindi",
     fiyat_listesi_eklendi:"Fiyat listesi eklendi", fiyat_listesi_silindi:"Fiyat listesi silindi", ayarlar_guncellendi:"Ayarlar güncellendi",
     iletisim_eklendi:"Müşteri iletişim notu eklendi", iletisim_silindi:"Müşteri iletişim notu silindi",
-    dosya_eklendi:"Organizasyona dosya eklendi", dosya_silindi:"Organizasyondan dosya silindi"
+    dosya_eklendi:"Organizasyona dosya eklendi", dosya_silindi:"Organizasyondan dosya silindi",
+    dj_gorusme_guncellendi:"DJ görüşme durumu güncellendi"
   };
   return m[action]||String(action||"İşlem").replaceAll("_"," ");
 }
@@ -617,6 +633,79 @@ async function oturumBaslat(){
   return true;
 }
 
+
+function rolEtiket(rol){
+  return ({admin:"Yönetici",dj:"DJ",sef_garson:"Şef Garson",asci:"Aşçı"})[rol]||"Personel";
+}
+
+async function rolYukle(){
+  const {data,error}=await sb.from("mm_user_roles").select("role,display_name").eq("user_id",aktifKullanici.id).maybeSingle();
+  if(error) throw error;
+  aktifProfil=data||null;
+  aktifRol=data&&data.role?data.role:null;
+  return aktifProfil;
+}
+
+async function djDurumlariYukle(){
+  if(!sb || !aktifKullanici || !["admin","dj"].includes(aktifRol)){ djDurumHarita={}; return; }
+  const {data,error}=await sb.from("mm_dj_private").select("org_id,phone,contacted,contacted_at,contacted_by_email").eq("workspace_id",workspaceId());
+  if(error){ console.error("DJ durumları okunamadı",error); return; }
+  djDurumHarita={};
+  (data||[]).forEach(x=>{djDurumHarita[x.org_id]=x;});
+}
+
+async function personelVeriYukle(){
+  const {data,error}=await sb.from("mm_staff_schedule").select("workspace_id,org_id,event_date,event_time,person_count,event_type,status,updated_at").eq("workspace_id",workspaceId()).order("event_date",{ascending:true}).order("event_time",{ascending:true});
+  if(error) throw error;
+  personelProgram=data||[];
+  if(aktifRol==="dj") await djDurumlariYukle(); else djDurumHarita={};
+}
+
+function personelCiz(){
+  if(!aktifRol || aktifRol==="admin") return;
+  el("uygulama").innerHTML=personelEkrani();
+  el("sekmeler").style.display="none";
+  senkronDurum("Program güncel","ok");
+  window.scrollTo(0,0);
+}
+
+function personelYenilePlanla(){
+  clearTimeout(personelYenileTimer);
+  personelYenileTimer=setTimeout(async()=>{
+    try{await personelVeriYukle();personelCiz();}catch(e){console.error(e);senkronDurum("Program yenilenemedi","hata");}
+  },250);
+}
+
+async function personelDinle(){
+  if(kanal) try{await sb.removeChannel(kanal);}catch(e){}
+  kanal=sb.channel("much-more-staff-"+workspaceId()+"-"+aktifKullanici.id)
+    .on("postgres_changes",{event:"*",schema:"public",table:"mm_staff_schedule",filter:"workspace_id=eq."+workspaceId()},()=>personelYenilePlanla());
+  if(aktifRol==="dj") kanal=kanal.on("postgres_changes",{event:"*",schema:"public",table:"mm_dj_private",filter:"workspace_id=eq."+workspaceId()},()=>personelYenilePlanla());
+  kanal.subscribe();
+}
+
+function personelEkrani(){
+  const ay=personelAy;
+  const liste=(personelProgram||[]).filter(x=>String(x.event_date||"").slice(0,7)===ay).sort((a,b)=>String(a.event_date||"").localeCompare(String(b.event_date||""))||String(a.event_time||"").localeCompare(String(b.event_time||"")));
+  const ad=aktifProfil&&aktifProfil.display_name?aktifProfil.display_name:rolEtiket(aktifRol);
+  const kartlar=liste.length?liste.map(x=>{
+    const iptal=x.status==="iptal", dj=djDurumHarita[x.org_id]||{};
+    const tel=aktifRol==="dj"&&dj.phone?'<a class="personel-telefon" href="tel:'+esc(String(dj.phone).replace(/\s/g,""))+'">☎ '+esc(dj.phone)+'</a>':'';
+    const gorusme=aktifRol==="dj"&&!iptal?'<div class="dj-gorusme"><b style="font-size:12px">Görüşme sağlandı mı?</b><div class="dj-gorusme-satir"><button class="dj-sec '+(dj.contacted?'aktif':'')+'" data-dj-gorusme="'+esc(x.org_id)+'" data-dj-deger="1">Evet</button><button class="dj-sec hayir '+(!dj.contacted&&dj.contacted_at?'aktif':'')+'" data-dj-gorusme="'+esc(x.org_id)+'" data-dj-deger="0">Hayır</button></div>'+(dj.contacted_at?'<div class="mini-alt" style="margin-top:6px">Son işaretleme: '+esc(tarihSaatYaz(dj.contacted_at))+'</div>':'<div class="mini-alt" style="margin-top:6px">Henüz işaretlenmedi.</div>')+'</div>':'';
+    return '<div class="personel-kart '+(iptal?'iptal':'')+'"><div class="personel-kart-ust"><div><div class="personel-tarih">'+tarihYaz(x.event_date)+(x.event_time?' · '+esc(x.event_time):'')+'</div><div class="personel-meta">'+esc(x.event_type||"Organizasyon")+(iptal?' · İPTAL EDİLDİ':'')+'</div>'+tel+'</div><div class="personel-kisi">'+esc(x.person_count||0)+'<small>kişi</small></div></div>'+gorusme+'</div>';
+  }).join(""):'<div class="kart"><p class="bos" style="margin:0">Bu ay için organizasyon görünmüyor.</p></div>';
+  return '<div class="ekran"><h2 class="serif personel-baslik">Personel Programı <span class="personel-rozet">'+esc(rolEtiket(aktifRol))+'</span></h2><p class="personel-alt">'+esc(ad)+' · Yalnızca iş programınız için gerekli bilgiler gösterilir.</p><div class="ay-cubugu"><button class="yuvarlak" data-personel-ay="-1">‹</button><h3 class="ay-adi serif" style="font-size:22px">'+ayAdi(ay)+'</h3><button class="yuvarlak" data-personel-ay="1">›</button></div>'+kartlar+'</div>';
+}
+
+async function personelUygulamayiYukle(){
+  uygulamaGoster();
+  if(el("oturumKim")) el("oturumKim").textContent=(aktifProfil&&aktifProfil.display_name?aktifProfil.display_name:(aktifKullanici.email||"Personel"))+" · "+rolEtiket(aktifRol);
+  el("sekmeler").style.display="none";
+  try{await personelVeriYukle();}catch(e){console.error(e);girisGoster("Personel programı açılamadı. v8 Supabase SQL kurulumunu kontrol edin.");return;}
+  personelCiz();
+  await personelDinle();
+}
+
 async function bulutDinle(){
   if(kanal) try{await sb.removeChannel(kanal);}catch(e){}
   kanal=sb.channel("much-more-sync-"+workspaceId()).on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state",filter:"id=eq."+workspaceId()},payload=>{
@@ -634,6 +723,8 @@ async function bulutDinle(){
     if(!payload.new) return;
     auditKayitlari=[payload.new,...auditKayitlari.filter(x=>x.id!==payload.new.id)].slice(0,300);
     if(ekran==="gecmis") ciz();
+  }).on("postgres_changes",{event:"UPDATE",schema:"public",table:"mm_dj_private",filter:"workspace_id=eq."+workspaceId()},payload=>{
+    if(payload.new&&payload.new.org_id){djDurumHarita[payload.new.org_id]=payload.new;if(ekran==="detay")ciz();}
   }).subscribe();
 }
 
@@ -920,6 +1011,8 @@ function detayEkrani(){
   const tarihGecmisi=(o.tarihDegisiklikleri||[]).length?'<h3 class="bolum-baslik">Tarih değişiklikleri</h3><div class="kart">'+o.tarihDegisiklikleri.slice().reverse().map(x=>'<div class="tarih-gecmis"><span class="tarih-gecmis-ok">'+tarihKisa(x.eskiTarih)+' → '+tarihKisa(x.yeniTarih)+'</span><div><div class="kart-deger" style="font-size:13px">'+esc(x.not||"İstek doğrultusunda tarih değiştirildi")+'</div><div class="mini-alt">'+esc(tarihSaatYaz(x.kayitZamani))+'</div></div></div>').join("")+'</div>':'';
   const iptalKart=o.durum==="iptal"?'<h3 class="bolum-baslik">İptal bilgisi</h3><div class="kart iptal-kart"><span class="durum-rozet iptal">İPTAL EDİLDİ</span><div class="hesap-satir"><span>İptal tarihi</span><b>'+tarihYaz(ip.tarih)+'</b></div>'+(ip.neden?'<div class="hesap-satir kucuk"><span>Not / neden</span><span>'+esc(ip.neden)+'</span></div>':'')+'<div class="hesap-satir"><span>Para iadesi</span><b>'+(ip.iadeVar?"Evet":"Hayır")+'</b></div>'+(ip.iadeVar?'<div class="hesap-satir"><span>İade tutarı</span><b class="gider-renk">'+para(h.iade)+'</b></div><div class="hesap-satir kucuk"><span>İade tarihi</span><span>'+tarihYaz(ip.iadeTarih)+'</span></div>':'')+'<div class="hesap-satir sonuc"><span>Net elde kalan tahsilat</span><span class="tutar serif-tutar">'+para(h.netTahsilat)+'</span></div></div>':'';
   const u=tahsilatUyari(o), tahsilatKart=u?'<div class="kart uyari-kart '+(u.seviye==="acil"?"acil":"")+'"><span class="uyari-rozet '+(u.seviye==="acil"?"acil":"")+'">TAHSİLAT UYARISI</span><p class="kart-deger" style="margin-top:7px">'+esc(u.metin)+'</p></div>':'';
+  const djTakip=djDurumHarita[o.id]||{};
+  const djTakipKart='<h3 class="bolum-baslik">DJ görüşme takibi</h3><div class="kart dj-admin-kart"><div class="hesap-satir"><span>Görüşme sağlandı</span><b>'+(djTakip.contacted_at?(djTakip.contacted?"Evet":"Hayır"):"Henüz işaretlenmedi")+'</b></div>'+(djTakip.contacted_at?'<div class="hesap-satir kucuk"><span>Son işaretleme</span><span>'+esc(tarihSaatYaz(djTakip.contacted_at))+(djTakip.contacted_by_email?' · '+esc(kisaKullanici(djTakip.contacted_by_email)):'')+'</span></div>':'<p class="ipucu">DJ henüz görüşme durumunu işaretlemedi.</p>')+'</div>';
   const iletisim=(o.iletisim||[]).slice().sort((a,b)=>String(b.tarihSaat||"").localeCompare(String(a.tarihSaat||"")));
   const iletisimKart='<h3 class="bolum-baslik">Müşteri iletişim geçmişi</h3><div class="kart">'+(iletisim.length?iletisim.map(x=>'<div class="iletisim-kayit"><div class="iletisim-ust"><span class="iletisim-kanal">'+esc(x.kanal||"Görüşme")+'</span><span class="mini-alt">'+esc(tarihSaatYaz(x.tarihSaat))+' · '+esc(kisaKullanici(x.kullanici))+'</span></div><div class="kart-not" style="color:var(--murekkep)">'+esc(x.not||"")+'</div><button class="sil" style="float:right" data-iletisim-sil="'+x.id+'" title="Sil">×</button><div style="clear:both"></div></div>').join(""):'<p class="bos" style="margin:0 0 10px">Henüz iletişim notu yok.</p>')+'<div class="alan ciftli" style="margin-top:10px"><div><label class="et">Kanal</label><select class="gir" id="iletisimKanal"><option>Telefon</option><option>WhatsApp</option><option>Yüz yüze</option><option>E-posta</option><option>Diğer</option></select></div><div><label class="et">Tarih / saat</label><input class="gir" type="datetime-local" id="iletisimTarih" value="'+simdiLocalInput()+'"></div></div><div class="alan"><label class="et">Görüşme notu</label><textarea class="gir" rows="2" id="iletisimNot" placeholder="Ne konuşuldu, ne istendi, ne kararlaştırıldı?"></textarea></div><button class="dg ana genis" id="iletisimEkle">İletişim notunu ekle</button></div>';
   const dosyalar=(o.dosyalar||[]).slice().sort((a,b)=>String(b.yuklemeZamani||"").localeCompare(String(a.yuklemeZamani||"")));
@@ -935,7 +1028,7 @@ function detayEkrani(){
     +((dk.ekstra||[]).length?'<div class="kart"><span class="kart-etiket">Ekstra dekorasyon</span>'+(dk.ekstra||[]).map(x=>'<div class="hesap-satir"><span>'+esc(x.aciklama||"Ekstra dekorasyon")+'</span><span class="tutar">'+para(x.ucret)+'</span></div>').join("")+'</div>':'')
     +'<h3 class="bolum-baslik">Tasarım</h3><div class="kart"><div class="hesap-satir"><span>Menü kartı '+(ts.menuKarti&&ts.menuKarti.secili?"✓":"—")+'</span><span class="tutar">'+(ts.menuKarti&&ts.menuKarti.secili?para(ts.menuKarti.ucret):"—")+'</span></div><div class="hesap-satir"><span>Ayna tasarımı '+(ts.ayna&&ts.ayna.secili?"✓":"—")+'</span><span class="tutar">'+(ts.ayna&&ts.ayna.secili?para(ts.ayna.ucret):"—")+'</span></div></div>'
     +'<h3 class="bolum-baslik">Organizasyon giderleri</h3><div class="kart"><div class="hesap-satir"><span>Garson · '+h.garson+' kişi × '+para(h.garsonBirim)+'</span><span class="tutar">'+para(h.garsonTemel)+'</span></div>'+(h.garsonEk?'<div class="hesap-satir"><span>Garson yol / ek ücret'+(o.personel.garsonEkNot?'<br><span style="font-size:11.5px;color:var(--soluk)">'+esc(o.personel.garsonEkNot)+'</span>':'')+'</span><span class="tutar">'+para(h.garsonEk)+'</span></div>':'')+(h.dj?'<div class="hesap-satir"><span>DJ gideri</span><span class="tutar">'+para(h.dj)+'</span></div>':'')+(h.mutfak?'<div class="hesap-satir"><span>Mutfak personeli gideri</span><span class="tutar">'+para(h.mutfak)+'</span></div>':'')+(o.giderler||[]).map(g=>'<div class="hesap-satir"><span>'+esc(g.kalem)+' · '+tarihKisa(g.tarih||o.tarih)+'</span><span class="tutar">'+para(g.tutar)+'</span></div>').join("")+'<div class="hesap-satir sonuc"><span>Toplam gider</span><span class="tutar serif-tutar">'+para(h.gider)+'</span></div></div>'
-    +iletisimKart+dosyaKart
+    +djTakipKart+iletisimKart+dosyaKart
     +(o.notlar?'<h3 class="bolum-baslik">Notlar</h3><div class="kart"><p class="kart-deger">'+esc(o.notlar)+'</p></div>':'')
     +'<div class="dg-satir"><button class="dg ana" data-duzenle="'+o.id+'">Düzenle</button><button class="dg tehlike" data-sil="'+o.id+'">Sil</button></div></div>';
 }
@@ -1076,7 +1169,16 @@ document.addEventListener("submit",async(e)=>{
 
 document.addEventListener("click",async(e)=>{
   const h=(s)=>e.target.closest(s); let n;
-  if(h("#oturumCik")){ if(sb) await sb.auth.signOut(); aktifKullanici=null; if(kanal) try{await sb.removeChannel(kanal);}catch(_e){} D=null; girisGoster(); return; }
+  if(h("#oturumCik")){ if(sb) await sb.auth.signOut(); aktifKullanici=null; aktifRol=null; aktifProfil=null; personelProgram=[]; djDurumHarita={}; if(kanal) try{await sb.removeChannel(kanal);}catch(_e){} D=null; girisGoster(); return; }
+  if((n=h("[data-personel-ay]"))){personelAy=ayKaydir(personelAy,Number(n.dataset.personelAy));personelCiz();return;}
+  if((n=h("[data-dj-gorusme]"))){
+    if(aktifRol!=="dj")return;
+    const deger=n.dataset.djDeger==="1"; n.disabled=true;
+    const {error}=await sb.from("mm_dj_private").update({contacted:deger}).eq("workspace_id",workspaceId()).eq("org_id",n.dataset.djGorusme);
+    n.disabled=false;
+    if(error){console.error(error);serit("Görüşme durumu kaydedilemedi.","hata");return;}
+    await personelVeriYukle();personelCiz();return;
+  }
   if((n=h("[data-sekme]"))){ekran=n.dataset.sekme;acikGun=null;if(ekran==="gecmis") await auditYukle(true);ciz();return;}
   if(h("#gecmisYenile")){await auditYukle(true);ciz();return;}
   if(h("[data-yaklasana-git]")){ekran="yaklasan";acikGun=null;ciz();return;}
@@ -1181,13 +1283,22 @@ function yedekIndir(){ dosyaIndir(JSON.stringify(D,null,2),"much-more-yedek-"+bu
 /* ================= başlat ================= */
 async function uygulamayiYukle(){
   uygulamaGoster();
-  if(el("oturumKim")) el("oturumKim").textContent=aktifKullanici&&aktifKullanici.email?aktifKullanici.email:"Yetkili kullanıcı";
+  try{
+    const profil=await rolYukle();
+    if(!profil){girisGoster("Bu hesaba henüz Much&More rolü tanımlanmamış. Yönetici Supabase'de v8 rol atamasını yapmalı.");return;}
+  }catch(e){console.error(e);girisGoster("Rol bilgisi okunamadı. Önce Supabase SQL Editor'da supabase-v8-personel.sql dosyasını çalıştırın.");return;}
+
+  if(aktifRol!=="admin"){await personelUygulamayiYukle();return;}
+
+  el("sekmeler").style.display="flex";
+  if(el("oturumKim")) el("oturumKim").textContent=(aktifProfil&&aktifProfil.display_name?aktifProfil.display_name:(aktifKullanici.email||"Yetkili kullanıcı"))+" · Yönetici";
   let veri=null;
   try{ veri=await Depo.yukle(); }
   catch(e){ console.error(e); girisGoster("Veritabanına bağlanılamadı: "+(e.message||e)); return; }
   D=veriDuzenle(veri);
   const ok=await kaydet();
-  if(!ok){ girisGoster("Veritabanı hazır değil. Supabase SQL Editor'da ZIP içindeki supabase-kurulum.sql dosyasını çalıştırın."); return; }
+  if(!ok){ girisGoster("Veritabanı hazır değil veya bu hesap yönetici değil. v8 Supabase SQL kurulumunu kontrol edin."); return; }
+  await djDurumlariYukle();
   ciz(); await bulutDinle();
 }
 

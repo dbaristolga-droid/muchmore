@@ -99,3 +99,6 @@ Yeni bir fiyat listesi eklendiğinde mevcut organizasyonların fiyatı değişme
 Bu sürümde veriler hâlâ cihazın tarayıcı/PWA depolamasında tutulur. Aynı kayıtların birden fazla telefon tarafından ortak görülmesi için sonraki aşamada Supabase/Firebase gibi ortak veritabanı bağlantısı gerekir.
 
 Ortak veritabanı kurulana kadar düzenli olarak **Fiyatlar → Yedek indir (JSON)** kullanın.
+
+## v8 Personel Paneli
+Personel hesaplarını açmadan önce `supabase-v8-personel.sql` dosyasını çalıştırın. Ayrıntılı adımlar için `GUNCELLEME-V8-PERSONEL.md` dosyasına bakın.

@@ -104,3 +104,16 @@ Aynı adresi korursan eski sürümün telefonda tuttuğu kayıtlar ilk bulut gir
 Eski uygulamayı aynı GitHub Pages adresinde kullandıysan, tarayıcıdaki `org-defteri:v2` verisi korunur. Ortak veritabanı ilk kez boşken sen giriş yaptığında mevcut yerel veri otomatik olarak ortak kayda yüklenir.
 
 İlk bulut kurulumunu, eski verilerin bulunduğu **senin telefonundan** açman en güvenli yöntemdir. Bundan sonra abin giriş yapabilir.
+## v8 Personel hesapları
+
+DJ / Şef Garson / Aşçı hesapları için önce `supabase-v8-personel.sql` dosyasını SQL Editor'da çalıştırın. **Bu SQL'i personel hesaplarını oluşturmadan önce çalıştırın**; o anda var olan mevcut hesaplar ilk kurulumda yönetici olarak işaretlenir.
+
+Daha sonra Authentication > Users bölümünden personel kullanıcılarını oluşturun ve SQL Editor'da e-postaları değiştirerek çalıştırın:
+
+```sql
+select public.mm_set_user_role('dj@ornek.com', 'dj', 'DJ');
+select public.mm_set_user_role('sefgarson@ornek.com', 'sef_garson', 'Şef Garson');
+select public.mm_set_user_role('asci@ornek.com', 'asci', 'Aşçı');
+```
+
+Personel aynı PWA adresinden giriş yapar. DJ dışında personel müşteri telefonunu göremez. DJ telefon numarasını ve Görüşme sağlandı Evet/Hayır takibini görür.

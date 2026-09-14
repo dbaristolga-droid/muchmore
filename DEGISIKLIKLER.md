@@ -45,3 +45,11 @@
 - Müşteri iletişim geçmişi eklendi; kullanıcı ve tarih/saat tutulur.
 - Supabase Storage tabanlı sözleşme, dekont, görsel ve diğer dosya ekleri eklendi.
 - Dosya ve iletişim ekleme/silme işlemleri işlem geçmişine eklendi.
+
+## v8 — Personel Paneli
+- Admin / DJ / Şef Garson / Aşçı rol sistemi eklendi.
+- Personel hesaplarına hassas işletme verileri RLS seviyesinde kapatıldı.
+- DJ müşterinin telefonunu görebilir; diğer personel göremez.
+- DJ için Görüşme sağlandı Evet/Hayır takibi eklendi.
+- DJ görüşme değişiklikleri yönetici Geçmiş ekranına kaydedilir.
+- Tarih/kişi/tür/iptal değişiklikleri personel programına otomatik yansır.
