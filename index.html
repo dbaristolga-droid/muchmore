@@ -1226,7 +1226,7 @@ document.addEventListener("click",async(e)=>{
   if(h("[data-yaklasana-git]")){ekran="yaklasan";acikGun=null;ciz();return;}
   if(h("#isFiltreTemizle")){isArama="";isDurum="tumu";isTur="tumu";isAy="";ciz();return;}
   if((n=h("[data-ay]"))){acikAy+=Number(n.dataset.ay);acikGun=null;if(acikAy<0){acikAy=11;acikYil--;}if(acikAy>11){acikAy=0;acikYil++;}ciz();return;}
-  if((n=h("[data-gun]"))){acikGun=acikGun===n.dataset.gun?null:n.dataset.gun;ciz();return;}
+  if((n=h("[data-gun]"))){const iso=n.dataset.gun,gunOrgs=(D.organizasyonlar||[]).filter(o=>o.tarih===iso);if(gunOrgs.length===1){seciliOrg=gunOrgs[0].id;acikGun=null;ekran="detay";ciz();return;}acikGun=acikGun===iso?null:iso;ciz();return;}
   if((n=h("[data-yeni]"))){taslak=yeniOrg(n.dataset.yeni);seciliOrg=null;ekran="form";ciz();return;}
   if((n=h("[data-org]"))){seciliOrg=n.dataset.org;ekran="detay";ciz();return;}
   if(h("[data-geri]")){ekran=(ekran==="form"&&seciliOrg&&D.organizasyonlar.some(x=>x.id===seciliOrg))?"detay":"takvim";ciz();return;}
@@ -1348,6 +1348,7 @@ async function uygulamayiYukle(){
 /* ================= v9 profesyonel arayüz + ödeme/checklist ================= */
 let v9Payments=[];
 let v9ChecklistHarita={};
+let v9EkVeriHazir=false;
 
 const v8GirisHTML=girisHTML;
 girisHTML=function(hata){
@@ -1384,9 +1385,19 @@ async function v9EkVeriYukle(){
     sb.from("mm_org_checklist").select("*").eq("workspace_id",workspaceId())
   ]);
   if(p.error) throw p.error; if(c.error) throw c.error;
-  v9Payments=p.data||[]; v9ChecklistHarita={}; (c.data||[]).forEach(x=>v9ChecklistHarita[x.org_id]=x);
+  v9Payments=p.data||[]; v9ChecklistHarita={}; (c.data||[]).forEach(x=>v9ChecklistHarita[x.org_id]=x); v9EkVeriHazir=true;
 }
 function v9OrgPayments(orgId){ return (v9Payments||[]).filter(x=>x.org_id===orgId).sort((a,b)=>String(a.payment_date||"").localeCompare(String(b.payment_date||""))||String(a.created_at||"").localeCompare(String(b.created_at||""))); }
+function v9TahsilatToplam(orgId){ return v9OrgPayments(orgId).reduce((t,p)=>t+sayi(p.amount),0); }
+const v8HesaplaV9=hesapla;
+hesapla=function(o){
+  const h=v8HesaplaV9(o);
+  if(!v9EkVeriHazir || !o || !o.id) return h;
+  const alinan=v9TahsilatToplam(o.id);
+  const netTahsilat=alinan-h.iade;
+  const hamKalan=h.iptalMi?0:h.toplam-alinan;
+  return Object.assign({},h,{alinan,netTahsilat,kalan:Math.max(0,hamKalan),fazlaTahsilat:Math.max(0,-hamKalan)});
+};
 function v9Checklist(orgId){ return v9ChecklistHarita[orgId]||{workspace_id:workspaceId(),org_id:orgId,dj_contact_ok:false,menu_ok:false,person_count_ok:false,decor_ok:false,chief_waiter_ok:false,chef_ok:false,payment_ok:false}; }
 function v9ChecklistPct(c){ const keys=["dj_contact_ok","menu_ok","person_count_ok","decor_ok","chief_waiter_ok","chef_ok","payment_ok"]; return Math.round(keys.filter(k=>!!c[k]).length/keys.length*100); }
 
@@ -1410,7 +1421,14 @@ personelEkrani=function(){
 const v8AylikRapor=aylikRapor;
 aylikRapor=function(anahtar){
   const r=v8AylikRapor(anahtar);
-  r.gelirler.forEach(g=>{ const o=D.organizasyonlar.find(x=>x.id===g.orgId); if(!o) return; const p=(o.odemeler||[]).find(x=>String(x.tarih||"")===String(g.tarih||"") && sayi(x.tutar)===sayi(g.tutar) && String(x.etiket||"Ödeme")===String(g.kalem||"Ödeme")); g.method=p&&p.method?p.method:"Belirtilmedi"; g.note=p&&p.note?p.note:""; });
+  if(v9EkVeriHazir){
+    r.gelirler=(v9Payments||[]).filter(p=>ayAnahtar(p.payment_date)===anahtar).map(p=>{const o=D.organizasyonlar.find(x=>x.id===p.org_id);return {tarih:p.payment_date,ad:o&&o.musteri?o.musteri:"İsimsiz",kalem:p.label||"Ödeme",tutar:sayi(p.amount),orgId:p.org_id,method:p.method||"Belirtilmedi",note:p.note||""};}).sort((a,b)=>String(a.tarih||"").localeCompare(String(b.tarih||"")));
+    r.toplamGelir=r.gelirler.reduce((t,x)=>t+sayi(x.tutar),0);
+    r.net=r.toplamGelir-r.toplamGider;
+    r.gelirOzet=ozetleKalemler(r.gelirler);
+  }else{
+    r.gelirler.forEach(g=>{ const o=D.organizasyonlar.find(x=>x.id===g.orgId); if(!o) return; const p=(o.odemeler||[]).find(x=>String(x.tarih||"")===String(g.tarih||"") && sayi(x.tutar)===sayi(g.tutar) && String(x.etiket||"Ödeme")===String(g.kalem||"Ödeme")); g.method=p&&p.method?p.method:"Belirtilmedi"; g.note=p&&p.note?p.note:""; });
+  }
   r.sahsiGider=r.giderler.filter(g=>String(g.kalem||"").startsWith("Şahsi Harcama")).reduce((t,x)=>t+sayi(x.tutar),0);
   r.isletmeGider=r.toplamGider-r.sahsiGider;
   r.faaliyetNet=r.toplamGelir-r.isletmeGider;
@@ -1444,7 +1462,8 @@ detayEkrani=function(){
   const o=D.organizasyonlar.find(x=>x.id===seciliOrg); if(!o) return v8DetayEkrani();
   let base=v8DetayEkrani(), pays=v9OrgPayments(o.id), c=v9Checklist(o.id), pct=v9ChecklistPct(c);
   const paymentRows=pays.length?pays.map(p=>'<div class="hesap-satir kucuk"><span>'+tarihKisa(p.payment_date)+' · '+esc(p.label||"Ödeme")+' <span class="v9-method">'+esc(p.method||"Belirtilmedi")+'</span>'+(p.note?'<br><span style="font-size:10.5px;color:var(--soluk)">'+esc(p.note)+'</span>':'')+'</span><span class="tutar">'+para(p.amount)+'</span></div>').join(''):'<p class="bos" style="margin:0 0 10px">Tahsilat kaydı yok.</p>';
-  const payCard='<h3 class="bolum-baslik">Profesyonel tahsilat</h3><div class="kart v9-payment"><div class="check-head"><b>Tahsilat geçmişi</b><span>'+pays.length+' hareket</span></div>'+paymentRows+'<div class="alan" style="margin-top:12px"><label class="et">Yeni tahsilat</label><div class="v9-form-grid"><input class="gir" type="number" inputmode="decimal" id="v9OdemeTutar" placeholder="Tutar"><input class="gir" type="date" id="v9OdemeTarih" value="'+bugunISO()+'"><select class="gir" id="v9OdemeYontem"><option>Nakit</option><option>Havale</option><option>POS</option><option>Diğer</option><option>Belirtilmedi</option></select><input class="gir" id="v9OdemeEtiket" value="Ara ödeme" placeholder="Ödeme adı"></div><textarea class="gir" rows="2" id="v9OdemeNot" style="margin-top:8px" placeholder="Not / dekont açıklaması (opsiyonel)"></textarea></div><button class="dg ana genis" id="v9OdemeEkle" data-org="'+esc(o.id)+'">Tahsilatı kaydet</button><p class="ipucu">Gelir, seçtiğiniz tahsilat tarihinin ayına otomatik yazılır.</p></div>';
+  const hp=hesapla(o);
+  const payCard='<h3 class="bolum-baslik">Profesyonel tahsilat</h3><div class="kart v9-payment"><div class="check-head"><b>Tahsilat geçmişi</b><span>'+pays.length+' hareket</span></div><div class="hesap-satir"><span>Toplam tahsilat</span><b class="gelir-renk">'+para(hp.alinan)+'</b></div><div class="hesap-satir sonuc"><span>Kalan bakiye</span><b class="'+(hp.kalan>0?'gider-renk':'gelir-renk')+'">'+(hp.kalan>0?para(hp.kalan):'Ödendi')+'</b></div>'+paymentRows+'<div class="alan" style="margin-top:12px"><label class="et">Yeni tahsilat</label><div class="v9-form-grid"><input class="gir" type="number" inputmode="decimal" id="v9OdemeTutar" placeholder="Tutar"><input class="gir" type="date" id="v9OdemeTarih" value="'+bugunISO()+'"><select class="gir" id="v9OdemeYontem"><option>Nakit</option><option>Havale</option><option>POS</option><option>Diğer</option><option>Belirtilmedi</option></select><input class="gir" id="v9OdemeEtiket" value="Ara ödeme" placeholder="Ödeme adı"></div><textarea class="gir" rows="2" id="v9OdemeNot" style="margin-top:8px" placeholder="Not / dekont açıklaması (opsiyonel)"></textarea></div><button class="dg ana genis" id="v9OdemeEkle" data-org="'+esc(o.id)+'">Tahsilatı kaydet</button><p class="ipucu">Gelir, seçtiğiniz tahsilat tarihinin ayına otomatik yazılır.</p></div>';
   const items=[['dj_contact_ok','DJ görüşmesi'],['menu_ok','Menü kesinleşti'],['person_count_ok','Kişi sayısı kesinleşti'],['decor_ok','Dekorasyon kesinleşti'],['chief_waiter_ok','Şef garson bilgilendirildi'],['chef_ok','Aşçı bilgilendirildi'],['payment_ok','Kalan ödeme tamamlandı']];
   const checkCard='<h3 class="bolum-baslik">Organizasyon kontrol listesi</h3><div class="kart"><div class="check-head"><b>Hazırlık durumu</b><span>%'+pct+' tamamlandı</span></div><div class="prog" style="margin-bottom:11px"><i style="width:'+pct+'%"></i></div><div class="check-grid">'+items.map(it=>'<label class="check-item '+(c[it[0]]?'done':'')+'"><input type="checkbox" data-v9-check="'+it[0]+'" data-org="'+esc(o.id)+'" '+(c[it[0]]?'checked':'')+'><span>'+it[1]+'</span></label>').join('')+'</div></div>';
   const needle='<h3 class="bolum-baslik">DJ görüşme takibi</h3>';
@@ -1505,7 +1524,7 @@ uygulamayiYukle=async function(){
 
 document.addEventListener("click",async(e)=>{
   const pay=e.target.closest&&e.target.closest("#v9OdemeEkle");
-  if(pay){ const orgId=pay.dataset.org, tutar=sayi(el("v9OdemeTutar").value), tarih=el("v9OdemeTarih").value||bugunISO(), method=el("v9OdemeYontem").value, label=(el("v9OdemeEtiket").value||"Ödeme").trim(), note=(el("v9OdemeNot").value||"").trim(); if(!tutar){serit("Tahsilat tutarı girin.","hata");return;} pay.disabled=true;pay.textContent="Kaydediliyor…"; const {data,error}=await sb.rpc("mm_add_payment",{p_org_id:orgId,p_payment_date:tarih,p_amount:tutar,p_method:method,p_label:label,p_note:note||null}); if(error){console.error(error);pay.disabled=false;pay.textContent="Tahsilatı kaydet";serit("Tahsilat kaydedilemedi: "+error.message,"hata");return;} try{D=veriDuzenle(await Depo.yukle());await v9EkVeriYukle();}catch(_e){} ciz();serit(para(tutar)+" tahsilat kaydedildi.");return; }
+  if(pay){ const orgId=pay.dataset.org, tutar=sayi(el("v9OdemeTutar").value), tarih=el("v9OdemeTarih").value||bugunISO(), method=el("v9OdemeYontem").value, label=(el("v9OdemeEtiket").value||"Ödeme").trim(), note=(el("v9OdemeNot").value||"").trim(); if(!tutar){serit("Tahsilat tutarı girin.","hata");return;} pay.disabled=true;pay.textContent="Kaydediliyor…"; const {data,error}=await sb.rpc("mm_add_payment",{p_org_id:orgId,p_payment_date:tarih,p_amount:tutar,p_method:method,p_label:label,p_note:note||null}); if(error){console.error(error);pay.disabled=false;pay.textContent="Tahsilatı kaydet";serit("Tahsilat kaydedilemedi: "+error.message,"hata");return;} if(data&&data.id){v9Payments=[...(v9Payments||[]).filter(x=>x.id!==data.id),data];v9EkVeriHazir=true;} try{D=veriDuzenle(await Depo.yukle());await v9EkVeriYukle();}catch(_e){} ciz();serit(para(tutar)+" tahsilat kaydedildi · bakiye güncellendi.");return; }
   const chk=e.target.closest&&e.target.closest("[data-v9-check]");
   if(chk){ const orgId=chk.dataset.org, key=chk.dataset.v9Check, val=!!chk.checked; const patch={workspace_id:workspaceId(),org_id:orgId};patch[key]=val;patch.updated_by=aktifKullanici.id;patch.updated_by_email=aktifKullanici.email||null; const {data,error}=await sb.from("mm_org_checklist").upsert(patch,{onConflict:"workspace_id,org_id"}).select().single(); if(error){console.error(error);chk.checked=!val;serit("Kontrol listesi güncellenemedi.","hata");return;} v9ChecklistHarita[orgId]=data; await auditYaz(auditKaydi("organizasyon_kontrol_guncellendi","organizasyon",orgId,(D.organizasyonlar.find(x=>x.id===orgId)||{}).musteri||"Organizasyon",{aciklama:chk.parentElement.innerText.trim()+": "+(val?"Tamam":"Bekliyor")})); ciz();return; }
   const sah=e.target.closest&&e.target.closest("#sahsiEkle");

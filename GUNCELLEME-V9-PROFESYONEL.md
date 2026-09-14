@@ -21,3 +21,10 @@ Mevcut 43 organizasyon, personel programları, ödeme geçmişi, kullanıcı rol
 
 ## Kurulum
 ZIP içindeki dosyaları GitHub Pages reposunun kök dizinine yükleyip mevcut dosyaların üzerine yazın. Supabase v9 veritabanı güncellemeleri zaten uygulanmıştır.
+
+## v9.1 düzeltmeleri
+- Yeni tahsilat kaydedildiği anda organizasyonun alınan tutarı ve kalan bakiyesi artık `mm_payments` tablosundan hesaplanır.
+- Aylık tahsilat raporu da aynı ödeme tablosunu kaynak alır; app_state gecikmesi bakiye/rapor farkı yaratmaz.
+- Tahsilat kartında toplam tahsilat ve güncel kalan bakiye ayrıca gösterilir.
+- Takvimde yalnızca bir organizasyon bulunan güne dokununca doğrudan organizasyon detayına girilir. Birden fazla organizasyon varsa günlük seçim paneli açılır.
+- Service Worker sürümü yükseltildi; eski önbellek yeni sürümü engellemez.
