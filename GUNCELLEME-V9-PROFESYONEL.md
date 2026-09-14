@@ -44,3 +44,10 @@ ZIP içindeki dosyaları GitHub Pages reposunun kök dizinine yükleyip mevcut d
 - Tahsilat butonu artık `data-pay-org`, checklist kontrolleri `data-v9-org` kullanıyor.
 - Başarılı tahsilattan sonra ödeme tablosu sunucudan yeniden okunuyor; kalan bakiye gerçek `mm_payments` toplamından güncelleniyor.
 - Service worker önbellek sürümü yükseltildi (`much-more-v9-profesyonel-4`).
+
+
+## v9.3 — Eski kapora / tahsilat tarihi düzenleme
+- Mevcut tahsilatların tarihleri organizasyon detayından sonradan eklenebilir veya değiştirilebilir.
+- Tarihi bilinmeyen eski kaporalar **TARİH GİRİLMEMİŞ** etiketiyle görünür.
+- Tarih güncellendiğinde aylık rapor otomatik olarak yeni tahsilat ayına taşınır.
+- Değişiklik hem yeni ödeme tablosuna hem eski organizasyon ödeme verisine senkronlanır.
